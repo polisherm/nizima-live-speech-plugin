@@ -1,0 +1,25 @@
+{
+  "name": "nizima-agent-bridge",
+  "version": "0.1.0",
+  "description": "Speak Claude Code responses through a Live2D model in nizima LIVE via the Plugin API",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "status": "tsx src/cli/status.ts",
+    "discuss": "tsx src/cli/discuss.ts",
+    "cast": "tsx src/cli/cast.ts",
+    "fix-readings": "tsx src/cli/fix-readings.ts",
+    "credit": "tsx src/cli/credit.ts",
+    "calm-down": "tsx src/cli/calm-down.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.233"
+  }
+}

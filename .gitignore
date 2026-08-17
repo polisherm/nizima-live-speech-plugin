@@ -1,0 +1,22 @@
+node_modules/
+dist/
+
+# nizima LIVE の認証トークン。
+# これがあれば誰でもこのプラグインとして接続できる。共有しない。
+state.json
+
+# 環境ごとの設定。人によって中身が違う。
+# 書き方は config.example.json を見る。
+config.local.json
+
+# 喋らせるたびに増える台本。手元に溜まるだけなので追跡しない。
+# 記法の見本として、sample- で始まるものだけ残す。
+takes/*.txt
+!takes/sample-*.txt
+
+# 読み上げのたびに作る一時ファイル。
+*.wav
+*.png
+
+# IDE の設定。
+.idea/

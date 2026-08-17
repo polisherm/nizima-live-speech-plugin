@@ -1,0 +1,5 @@
+# src/core/format-speech.ts は NUL をプレースホルダに使う。
+# 何も指定しないと git がバイナリと見なし、diff が出ない。
+#
+# text ではなく diff を指定する。改行コードの正規化は起こさない。
+*.ts diff
