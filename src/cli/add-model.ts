@@ -3,6 +3,11 @@
 //
 // 使い方: npx tsx src/cli/add-model.ts "<model3.json のパス>"
 import { NizimaClient } from "../core/nizima-client.js";
+import type {
+  AddModelResponse,
+  GetCurrentSceneIdResponse,
+} from "../core/nizima-types.js";
+import { printModels } from "./shared.js";
 
 const modelPath = process.argv[2];
 if (!modelPath) {
@@ -13,21 +18,16 @@ if (!modelPath) {
 const client = new NizimaClient();
 await client.connect();
 
-const scene = (await client.request("GetCurrentSceneId")) as { SceneId: string };
+const scene =
+  await client.request<GetCurrentSceneIdResponse>("GetCurrentSceneId");
 console.log(`追加先のシーン: ${scene.SceneId}`);
 
-const added = (await client.request("AddModel", {
+const added = await client.request<AddModelResponse>("AddModel", {
   SceneId: scene.SceneId,
   ModelPath: modelPath,
-})) as { ModelId: string };
+});
 console.log(`追加した ModelId: ${added.ModelId}`);
 
-const models = (await client.request("GetModels")) as {
-  Models: Array<{ ModelId: string; Name?: string }>;
-};
-console.log(`\n表示中のモデル: ${models.Models.length} 体`);
-for (const model of models.Models) {
-  console.log(`  - ${model.Name ?? "(名前なし)"} [${model.ModelId}]`);
-}
+await printModels(client);
 
 client.close();

@@ -1,6 +1,8 @@
 import { NizimaClient } from "../core/nizima-client.js";
+import type { GetCurrentModelIdResponse } from "../core/nizima-types.js";
 import { formatForSpeech } from "../core/format-speech.js";
 import { speakOnModel, closeAudioPlayer } from "../core/speak-core.js";
+import { readStdin } from "./shared.js";
 
 /**
  * テキストを VOICEVOX で合成し、再生しながらモデルの口を動かす。
@@ -53,9 +55,8 @@ console.log(`VOICEVOX で合成中 (speaker=${speakerId})...`);
 const client = new NizimaClient();
 await client.connect();
 
-const current = (await client.request("GetCurrentModelId")) as {
-  ModelId: string;
-};
+const current =
+  await client.request<GetCurrentModelIdResponse>("GetCurrentModelId");
 
 if (expressionName) {
   console.log(`表情: ${expressionName}`);
@@ -74,11 +75,3 @@ console.log(
 );
 closeAudioPlayer();
 client.close();
-
-async function readStdin(): Promise<string> {
-  const chunks: Buffer[] = [];
-  for await (const chunk of process.stdin) {
-    chunks.push(Buffer.from(chunk));
-  }
-  return Buffer.concat(chunks).toString("utf8");
-}

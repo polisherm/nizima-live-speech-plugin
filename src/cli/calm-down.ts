@@ -8,23 +8,31 @@
 // モーションは止めるまで動き続ける。口を含むモーションが残ると、
 // 何も喋っていないのに口が開閉する。
 import { NizimaClient } from "../core/nizima-client.js";
+import type { GetModelsResponse } from "../core/nizima-types.js";
 import { resolveModelIds } from "../core/speak-core.js";
 import { resetEmotion, returnToIdle } from "../core/emotion.js";
 
 const client = new NizimaClient();
 await client.connect();
 
-const models = (await client.request("GetModels")) as {
-  Models: Array<{ ModelId: string; Name?: string }>;
-};
-
 const wanted = process.argv.slice(2);
 const ids = await resolveModelIds(client);
-const targets = wanted.length
-  ? wanted.map((name) => ids.get(name)).filter(Boolean)
-  : models.Models.map((m) => m.ModelId);
 
-for (const modelId of targets as string[]) {
+// 名前を省いたら、画面に出ているものすべてを落ち着かせる。
+// 書き込む処理は無いので、まとめて当てて困らない。
+const targets: string[] = [];
+if (wanted.length > 0) {
+  for (const name of wanted) {
+    const id = ids.get(name);
+    if (id) targets.push(id);
+    else console.error(`モデルが見つからない: ${name}`);
+  }
+} else {
+  const models = await client.request<GetModelsResponse>("GetModels");
+  targets.push(...models.Models.map((m) => m.ModelId));
+}
+
+for (const modelId of targets) {
   // 止めるのではなく待機へ乗り換える。止めると姿勢が一段で飛ぶ。
   await returnToIdle(client, modelId);
   await client

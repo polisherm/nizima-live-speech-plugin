@@ -10,6 +10,7 @@
 // 台本にしてからまとめて直せば、再生の速さに響かない。
 import { readFileSync, writeFileSync } from "node:fs";
 import { ROLES } from "../core/roles.js";
+import { parseScriptLine } from "../core/takes.js";
 import { fixMisreadingsAll, type LineToCheck } from "../core/verify-reading.js";
 
 const target = process.argv[2];
@@ -27,13 +28,12 @@ const toCheck: LineToCheck[] = [];
 
 for (const [at, line] of lines.entries()) {
   if (line.trim().startsWith("#")) continue;
-  const matched = line.match(/^([^:：]+)[:：]\s*(.+)$/);
-  if (!matched) continue;
-  const roleName = matched[1].trim();
-  const role = ROLES[roleName];
+  const parsed = parseScriptLine(line);
+  if (!parsed) continue;
+  const role = ROLES[parsed.role];
   if (!role) continue;
-  targets.push({ at, roleName });
-  toCheck.push({ text: matched[2].trim(), speakerId: role.speakerId });
+  targets.push({ at, roleName: parsed.role });
+  toCheck.push({ text: parsed.text, speakerId: role.speakerId });
 }
 
 if (toCheck.length === 0) {

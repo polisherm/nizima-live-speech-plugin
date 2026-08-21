@@ -11,6 +11,8 @@ import { performLine, prepareLine } from "../core/perform.js";
 import type { PreparedSpeech } from "../core/speak-core.js";
 import { resetEmotion, returnToIdle } from "../core/emotion.js";
 import { Subtitle, closeSubtitleRenderer } from "../core/subtitle.js";
+import { parseScript, type ScriptLine } from "../core/takes.js";
+import { readStdin } from "./shared.js";
 
 /** 字幕を出すか。0 を渡すと声だけになる。 */
 const SUBTITLE_ENABLED = process.env.SUBTITLE !== "0";
@@ -38,35 +40,6 @@ const SUBTITLE_WITH_NAME = process.env.SUBTITLE_WITH_NAME !== "0";
 // ここでも待つと足し算になり、掛け合いが間延びする。
 // 間の長さは音声側だけが持つ（voicevox.ts の末尾の無音を参照）。
 
-interface Line {
-  role: string;
-  text: string;
-}
-
-function parseScript(source: string): Line[] {
-  const lines: Line[] = [];
-  for (const raw of source.replace(/\r\n?/g, "\n").split("\n")) {
-    const line = raw.trim();
-    if (!line || line.startsWith("#")) continue;
-
-    const matched = line.match(/^([^:：]+)[:：]\s*(.+)$/);
-    if (!matched) {
-      console.warn(`役名が読み取れない行を飛ばした: ${line}`);
-      continue;
-    }
-    lines.push({ role: matched[1].trim(), text: matched[2].trim() });
-  }
-  return lines;
-}
-
-async function readStdin(): Promise<string> {
-  const chunks: Buffer[] = [];
-  for await (const chunk of process.stdin) {
-    chunks.push(Buffer.from(chunk));
-  }
-  return Buffer.concat(chunks).toString("utf8");
-}
-
 const args = process.argv.slice(2);
 const source = args.includes("--stdin")
   ? await readStdin()
@@ -79,7 +52,9 @@ if (!source.trim()) {
   process.exit(1);
 }
 
-const script = parseScript(source);
+const script = parseScript(source, (line) =>
+  console.warn(`役名が読み取れない行を飛ばした: ${line}`),
+);
 if (script.length === 0) {
   console.error("読み上げる台詞がなかった");
   process.exit(1);
@@ -141,7 +116,7 @@ const posture = setInterval(() => {
 }, 2000);
 
 /** 台詞 1 つを合成へ回す形にする。台本の並びから、そのまま引数を作る。 */
-const toPrepareOptions = (line: Line) => ({
+const toPrepareOptions = (line: ScriptLine) => ({
   raw: line.text,
   roleName: line.role,
   role: ROLES[line.role],

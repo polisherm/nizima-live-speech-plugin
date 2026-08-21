@@ -5,6 +5,7 @@
 // 位置と大きさが引き継がれるかは差し替えの前後で表示する。
 // 引き継がれない場合は、並べ直しが要る。
 import { NizimaClient } from "../core/nizima-client.js";
+import type { GetModelsResponse, ModelInfo } from "../core/nizima-types.js";
 
 const modelId = process.argv[2];
 const modelPath = process.argv[3];
@@ -13,21 +14,11 @@ if (!modelId || !modelPath) {
   process.exit(1);
 }
 
-interface ModelInfo {
-  ModelId: string;
-  Name?: string;
-  ModelPath?: string;
-  PositionX?: number;
-  PositionY?: number;
-  Scale?: number;
-  Rotation?: number;
-}
-
 const client = new NizimaClient();
 await client.connect();
 
 const describe = async (label: string): Promise<ModelInfo | undefined> => {
-  const models = (await client.request("GetModels")) as { Models: ModelInfo[] };
+  const models = await client.request<GetModelsResponse>("GetModels");
   const found = models.Models.find((m) => m.ModelId === modelId);
   if (!found) {
     console.log(`${label}: ModelId ${modelId} が見つからない`);
