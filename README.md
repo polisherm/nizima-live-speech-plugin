@@ -174,6 +174,12 @@ echo "<Markdown>" | npx tsx src/cli/speak.ts --stdin --format
 
 外のプログラムから呼ぶ入口として使える。
 
+## ライセンス
+
+MIT ライセンス。詳細は [LICENSE](./LICENSE) を見る。
+
+ただし `personas/` は対象外。二次創作物のため、このリポジトリのライセンスを適用しない。
+
 ## 関連
 
 - [nizimaLIVEPluginAPI](https://github.com/Live2D/nizimaLIVEPluginAPI) — プロトコル仕様

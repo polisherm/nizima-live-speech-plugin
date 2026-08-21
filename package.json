@@ -1,7 +1,8 @@
 {
   "name": "nizima-agent-bridge",
   "version": "0.1.0",
-  "description": "Speak Claude Code responses through a Live2D model in nizima LIVE via the Plugin API",
+  "description": "Make Live2D models in nizima LIVE speak with voice, lip sync, expressions, and subtitles via the Plugin API",
+  "license": "MIT",
   "type": "module",
   "private": true,
   "scripts": {
