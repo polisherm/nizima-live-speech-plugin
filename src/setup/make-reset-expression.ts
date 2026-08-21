@@ -34,10 +34,23 @@ const models = (await client.request("GetModels")) as {
   Models: Array<{ ModelId: string; ModelPath?: string }>;
 };
 
-const targets =
-  process.argv.length > 2
-    ? process.argv.slice(2).map((name) => ids.get(name)).filter(Boolean)
-    : models.Models.map((m) => m.ModelId);
+// 対象は必ず名前で指定させる。
+//
+// このスクリプトはモデルのフォルダに書き込む。model3.json も書き換える。
+// 省略を「全部」と読むと、口パク用に作った複製だけでなく、
+// 元のモデルまで書き換わる。取り消す道は無い。
+const wanted = process.argv.slice(2);
+if (wanted.length === 0) {
+  console.error("対象のモデルを名前で指定する。");
+  console.error(
+    "　例: npx tsx src/setup/make-reset-expression.ts zundamon_talk\n",
+  );
+  console.error(`画面に出ているモデル: ${[...ids.keys()].join(", ")}`);
+  client.close();
+  process.exit(1);
+}
+
+const targets = wanted.map((name) => ids.get(name)).filter(Boolean);
 
 for (const modelId of targets as string[]) {
   const model = models.Models.find((m) => m.ModelId === modelId);

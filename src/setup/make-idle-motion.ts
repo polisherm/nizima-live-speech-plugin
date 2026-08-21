@@ -45,14 +45,30 @@ const models = (await client.request("GetModels")) as {
   Models: Array<{ ModelId: string; Name?: string; ModelPath?: string }>;
 };
 
+// 対象は必ず名前で指定させる。
+//
+// このスクリプトはモデルのフォルダに書き込む。model3.json も書き換える。
+// 省略を「全部」と読むと、口パク用に作った複製だけでなく、
+// 元のモデルまで書き換わる。取り消す道は無い。
 const wanted = process.argv.slice(2);
+if (wanted.length === 0) {
+  console.error("対象のモデルを名前で指定する。");
+  console.error("　例: npx tsx src/setup/make-idle-motion.ts zundamon_talk\n");
+  console.error("画面に出ているモデル:");
+  for (const model of models.Models) {
+    if (!model.ModelPath) continue;
+    console.error(`  ${path.basename(path.dirname(model.ModelPath))}`);
+  }
+  client.close();
+  process.exit(1);
+}
 
 for (const model of models.Models) {
   const modelPath = model.ModelPath;
   if (!modelPath) continue;
   const folder = path.dirname(modelPath);
   const folderName = path.basename(folder);
-  if (wanted.length && !wanted.includes(folderName)) continue;
+  if (!wanted.includes(folderName)) continue;
 
   console.log(`\n=== ${folderName}`);
 

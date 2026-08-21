@@ -59,16 +59,24 @@ export class PwshWorker {
     this.ensureProcess();
   }
 
-  /** 次の 1 行を待つ。 */
+  /**
+   * 次の 1 行を待つ。
+   *
+   * 待ちきれずに諦めたあとも、待ち手は並びに残す。
+   * 外してしまうと、遅れて届いた行を次の待ち手が受け取る。
+   * 以降ずっと 1 行ずれ、鳴っていない音に口パクが付く。
+   * 残しておけば、遅れて来た行はここで捨てられる。
+   */
   nextLine(): Promise<string> {
     return new Promise((resolve) => {
+      let gaveUp = false;
       const timer = setTimeout(() => {
-        const at = this.waiters.indexOf(handler);
-        if (at !== -1) this.waiters.splice(at, 1);
+        gaveUp = true;
         resolve("timeout");
       }, RESPONSE_TIMEOUT_MS);
       const handler = (line: string) => {
         clearTimeout(timer);
+        if (gaveUp) return;
         resolve(line);
       };
       this.waiters.push(handler);

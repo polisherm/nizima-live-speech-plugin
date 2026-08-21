@@ -10,23 +10,20 @@ import {
   faceFront,
   closeAudioPlayer,
   warmUp,
+  MOUTH_INTERVAL_MS,
   type PreparedSpeech,
 } from "../core/speak-core.js";
 import { ROLES, ROLE_NAMES } from "../core/roles.js";
 import {
   Subtitle,
-  SUBTITLE_MAX_CHARS,
   closeSubtitleRenderer,
   takeRenderElapsedMs,
   takePlaceElapsedMs,
 } from "../core/subtitle.js";
 import {
   EMOTION_NAMES,
-  applyExpressionOnly,
-  resolveEmotion,
   returnToIdle,
   extractEmotion,
-  applyEmotion,
   resetEmotion,
 } from "../core/emotion.js";
 
@@ -166,19 +163,22 @@ function styleNote(): string[] {
   return ["", "# この回の注文", "", note];
 }
 
+/** 正規表現の記号を打ち消す。 */
+const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 /**
  * 生成結果から、台詞以外の混入を落とす。
  *
  * 履歴を「名前: 台詞」の形で渡すため、出力にも名前を付けたがる。
  * 指示だけでは残るので、後処理でも落とす。
  */
-function cleanLine(raw: string, roleName: string): string {
+function cleanLine(raw: string): string {
   let text = raw.trim();
 
-  // 先頭の役名プレフィックス
-  text = text.replace(new RegExp(`^${roleName}\\s*[:：]\\s*`), "");
+  // 先頭の役名プレフィックス。
+  // 役名は models.ts が決めるので、記号が入っていても壊れないようにする。
   for (const name of ROLE_NAMES) {
-    text = text.replace(new RegExp(`^${name}\\s*[:：]\\s*`), "");
+    text = text.replace(new RegExp(`^${escapeRegExp(name)}\\s*[:：]\\s*`), "");
   }
 
   // 括弧書きのト書き
@@ -260,7 +260,18 @@ const modelIds = await resolveModelIds(client);
 // 何度も回すうちに会話の形が似てくる。
 //
 // 第 3 引数で指名できる。書かなければ毎回どちらかに振る。
-const speakers = ["めたん", "ずんだもん"];
+//
+// 誰が出るかは models.ts が決める。ここには名前を書かない。
+// 書くと、モデルを足したときに直す場所が増える。
+const speakers = [...ROLE_NAMES];
+if (speakers.length !== 2) {
+  console.error(
+    `2 体で会話させる。models.ts のモデルは ${speakers.length} 体ある: ${speakers.join(" / ")}`,
+  );
+  client.close();
+  process.exit(1);
+}
+
 const firstSpeaker = process.argv[4];
 if (firstSpeaker && !speakers.includes(firstSpeaker)) {
   console.error(
@@ -294,11 +305,11 @@ const subtitle = SUBTITLE_ENABLED && SPEAK ? new Subtitle(client) : null;
 // 次の送信でまた正面へ飛ぶ。それが階段状の動きに見える。
 // 口パクと同じ間隔で送り続けて、戻る余地をなくす。
 const posture = setInterval(() => {
-  for (const name of ["めたん", "ずんだもん"]) {
+  for (const name of speakers) {
     const modelId = modelIds.get(ROLES[name].modelName);
     if (modelId) void faceFront(client, modelId);
   }
-}, 120);
+}, MOUTH_INTERVAL_MS);
 
 /** 中断されたときに口が開いたままにならないよう、両モデルを閉じる。 */
 async function closeMouths(): Promise<void> {
@@ -477,7 +488,7 @@ function startLine(
         if (turn === 1) {
           // 感情タグは掃除より先に外す。あとだと役名を落とす処理に引っかかる。
           const { emotion, text } = extractEmotion(answer);
-          const body = cleanLine(text, roleName);
+          const body = cleanLine(text);
           answer = "";
           if (!body) break;
 
@@ -627,7 +638,9 @@ for (let turn = 0; turn < total; turn++) {
     : fixMs === undefined
       ? "間に合わず"
       : `直しなし ${fixMs}ms`;
-  const expected = Math.round((spoken.durationSec * 1000) / 120);
+  const expected = Math.round(
+    (spoken.durationSec * 1000) / MOUTH_INTERVAL_MS,
+  );
   console.log(
     `      （読み確認 ${verify}` +
       ` / 合成待ち ${spoken.synthWaitMs}ms / 再生待ち ${spoken.readyDelayMs}ms` +

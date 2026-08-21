@@ -41,8 +41,17 @@ npm install
 ```
 python scripts/make-talk-models.py           # 対象を出すだけ
 python scripts/make-talk-models.py --apply   # 実際に作る
-npx tsx src/setup/make-idle-motion.ts        # 素の姿へ戻す待機モーションを作る
-npx tsx src/setup/make-reset-expression.ts   # 素の顔へ戻す表情を作る
+```
+
+複製ができたら、素へ戻すための待機モーションと表情を作る。
+**対象は必ず名前で指定する。** 省くと画面のモデル名を並べて止まる。
+
+書き込む先はモデルのフォルダで、`model3.json` も書き換える。
+名前を省いて全部に当てる作りにすると、複製ではなく元のモデルまで書き換わる。
+
+```
+npx tsx src/setup/make-idle-motion.ts zundamon_talk shikoku_metan_talk
+npx tsx src/setup/make-reset-expression.ts zundamon_talk shikoku_metan_talk
 ```
 
 ## 使い方

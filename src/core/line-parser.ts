@@ -377,9 +377,13 @@ export function splitParts(parts: Part[], maxChars: number): Part[][] {
           continue;
         }
         // 4 段目。字の数で割る。読みの指定はここでも 1 つのまま。
+        //
+        // 割るのは、収まらなかった piece だけにする。
+        // ここで clause を割ると、収まらない piece の数だけ clause 全体が積まれ、
+        // 同じ台詞が何度も字幕に出る。
         result.push(
           ...pack(
-            splitToAtoms(clause).map((atom) => [atom]),
+            splitToAtoms(piece).map((atom) => [atom]),
             maxChars,
           ),
         );

@@ -228,8 +228,26 @@ export interface SpeakResult {
   synthWaitMs: number;
 }
 
-/** 口パクの送信間隔（ミリ秒）。 */
-const MOUTH_INTERVAL_MS = 120;
+/**
+ * 口パクの送信間隔（ミリ秒）。
+ *
+ * 確かめる道具（probe/）も、この間隔で送って条件を揃える。
+ */
+export const MOUTH_INTERVAL_MS = 120;
+
+/**
+ * 経過した秒から、口の開き具合を返す。
+ *
+ * 音素は解析しない。音節らしいリズムで開閉するだけの簡易版。
+ * 閉じきらないよう下限を置く。喋っている間ずっと口が動いて見える。
+ *
+ * 確かめる道具（probe/）も同じ形を使う。別々に書くと、
+ * 本番と違う動きを見ながら競合を切り分けることになる。
+ */
+export function mouthOpenAt(elapsedSec: number): number {
+  const wave = Math.abs(Math.sin(elapsedSec * Math.PI * 3.5));
+  return 0.15 + wave * 0.65;
+}
 
 /**
  * 再生の準備ができた合図を待つ上限（ミリ秒）。
@@ -316,7 +334,6 @@ export async function speakOnModel(
       if (mouthTimer) return;
       readyDelayMs += Date.now() - requestedAt;
       startedAt = Date.now();
-      // 口パクループ。音素解析はせず、音節らしいリズムで開閉するだけの簡易版。
       mouthTimer = setInterval(() => {
         const elapsed = (Date.now() - startedAt) / 1000;
         if (elapsed >= speakingSec) return;
@@ -327,8 +344,7 @@ export async function speakOnModel(
         const silent = silences.some(
           (s) => elapsed >= s.start && elapsed < s.end,
         );
-        const base = Math.abs(Math.sin(elapsed * Math.PI * 3.5));
-        const value = silent ? 0 : 0.15 + base * 0.65;
+        const value = silent ? 0 : mouthOpenAt(elapsed);
         client
           .request("SetLiveParameterValues", {
             ModelId: modelId,
@@ -349,15 +365,22 @@ export async function speakOnModel(
       }, MOUTH_INTERVAL_MS);
     };
 
+    // 合図が来ないまま黙って待たない。
+    // 上限まで来たら、ずれを承知で口を動かし始める。
+    // startMouth は二重に始めないので、あとから合図が来ても害はない。
+    const readyFallback = setTimeout(startMouth, PLAYER_READY_TIMEOUT_MS);
+
     try {
       await player.play(wavPath, startMouth);
     } finally {
+      clearTimeout(readyFallback);
       // 何があっても止める。残すと口が動き続ける。
       if (mouthTimer) clearInterval(mouthTimer);
       mouthTimer = undefined;
+      // 途中で投げても消す。残すと一時フォルダに溜まっていく。
+      rmSync(wavPath, { force: true });
     }
     totalSec += durationSec;
-    rmSync(wavPath, { force: true });
   }
 
   await client.request("SetLiveParameterValues", {
