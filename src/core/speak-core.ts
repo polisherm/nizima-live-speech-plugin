@@ -2,6 +2,10 @@ import { rmSync } from "node:fs";
 import path from "node:path";
 import { tmpdir } from "node:os";
 import type { NizimaClient } from "./nizima-client.js";
+import type {
+  GetExpressionsResponse,
+  GetModelsResponse,
+} from "./nizima-types.js";
 import { synthesize, initializeSpeaker, type Silence } from "./voicevox.js";
 import { warmUpSubtitleRenderer, warmUpSubtitleItem } from "./subtitle.js";
 import { finishReading } from "./format-speech.js";
@@ -273,9 +277,10 @@ export async function speakOnModel(
   } = options;
 
   if (expressionName) {
-    const expressions = (await client.request("GetExpressions", {
-      ModelId: modelId,
-    })) as { Expressions: Array<{ Name: string; ExpressionPath: string }> };
+    const expressions = await client.request<GetExpressionsResponse>(
+      "GetExpressions",
+      { ModelId: modelId },
+    );
     const expression = expressions.Expressions.find(
       (e) => e.Name === expressionName,
     );
@@ -436,9 +441,7 @@ export async function faceFront(
 export async function resolveModelIds(
   client: NizimaClient,
 ): Promise<Map<string, string>> {
-  const models = (await client.request("GetModels")) as {
-    Models: Array<{ ModelId: string; Name?: string; ModelPath?: string }>;
-  };
+  const models = await client.request<GetModelsResponse>("GetModels");
   const map = new Map<string, string>();
   for (const model of models.Models) {
     if (model.Name) map.set(model.Name, model.ModelId);

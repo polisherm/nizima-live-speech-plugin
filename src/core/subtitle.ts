@@ -1,8 +1,12 @@
 import path from "node:path";
 import { tmpdir } from "node:os";
-import { fileURLToPath } from "node:url";
 import { rmSync } from "node:fs";
+import { REPO_ROOT } from "./config.js";
 import type { NizimaClient } from "./nizima-client.js";
+import type {
+  AddItemResponse,
+  GetCurrentSceneIdResponse,
+} from "./nizima-types.js";
 import {
   stripSpacesAroundJapanese,
   stripRubyForSubtitle,
@@ -20,13 +24,7 @@ import { PwshWorker } from "./pwsh-worker.js";
  * 画像を小さく作ると拡大でぼやけるため、高い解像度で描いて Scale で縮める。
  */
 
-const SCRIPT_PATH = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "..",
-  "..",
-  "scripts",
-  "render-subtitle.ps1",
-);
+const SCRIPT_PATH = path.join(REPO_ROOT, "scripts", "render-subtitle.ps1");
 
 /**
  * 描画する画像の幅。フォントサイズとの比で 1 行の文字数が決まる。
@@ -148,13 +146,12 @@ export async function warmUpSubtitleItem(client: NizimaClient): Promise<void> {
   );
   try {
     await renderImage("あ", imagePath, "#FFFFFF");
-    const scene = (await client.request("GetCurrentSceneId")) as {
-      SceneId: string;
-    };
-    const added = (await client.request("AddItem", {
+    const scene =
+      await client.request<GetCurrentSceneIdResponse>("GetCurrentSceneId");
+    const added = await client.request<AddItemResponse>("AddItem", {
       SceneId: scene.SceneId,
       ItemPath: imagePath,
-    })) as { ItemId: string };
+    });
     // 画面の外へ逃がしてから消す。一瞬でも見せない。
     await client
       .request("MoveItem", {
@@ -261,13 +258,12 @@ export class Subtitle {
     const body = speaker ? `${speaker}: ${cleaned}` : cleaned;
     await renderImage(body, imagePath, color);
 
-    const scene = (await this.client.request("GetCurrentSceneId")) as {
-      SceneId: string;
-    };
-    const added = (await this.client.request("AddItem", {
+    const scene =
+      await this.client.request<GetCurrentSceneIdResponse>("GetCurrentSceneId");
+    const added = await this.client.request<AddItemResponse>("AddItem", {
       SceneId: scene.SceneId,
       ItemPath: imagePath,
-    })) as { ItemId: string };
+    });
 
     // 追加した直後は既定の位置と大きさで置かれる。
     // 位置を指定するまでの間、画面の中央に大きく出る。

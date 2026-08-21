@@ -16,7 +16,14 @@
 // nizima の画面で手で動かせるので、位置と大きさは目で合わせられる。
 import path from "node:path";
 import { tmpdir } from "node:os";
+import { MODELS } from "./models.js";
 import type { NizimaClient } from "./nizima-client.js";
+import type {
+  AddItemResponse,
+  GetCurrentSceneIdResponse,
+  GetItemsResponse,
+  ItemInfo,
+} from "./nizima-types.js";
 import { renderImage } from "./subtitle.js";
 
 /**
@@ -25,10 +32,14 @@ import { renderImage } from "./subtitle.js";
  * 書き方の指定は「VOICEVOX を利用したことがわかる」だけで、形は決まっていない。
  * 音源の名前まで書く形が案内されているため、それに合わせる。
  *
+ * 名前は models.ts から引く。書き写すと、モデルを足したときに古いまま残る。
+ *
  * 区切りに / を使わない。字幕では折り返してよい位置の印にしてあり、
  * 描く側がそこで行を割ろうとする。
  */
-const CREDIT_TEXT = "VOICEVOX: 四国めたん・ずんだもん";
+const CREDIT_TEXT = `VOICEVOX: ${Object.values(MODELS)
+  .map((model) => model.voiceName)
+  .join("・")}`;
 
 /** 描く大きさ。字幕より小さく、目立たせない。 */
 const FONT_SIZE = 48;
@@ -65,24 +76,26 @@ const ITEM_SCALE = 0.038;
  */
 const IMAGE_PATH = path.join(tmpdir(), "nizima-agent-bridge-credit.png");
 
-interface Item {
-  ItemId: string;
-  ItemPath?: string;
+/** いま開いているシーンの ID。 */
+async function currentSceneId(client: NizimaClient): Promise<string> {
+  const scene =
+    await client.request<GetCurrentSceneIdResponse>("GetCurrentSceneId");
+  return scene.SceneId;
 }
 
 /** 画面に出ているアイテムを取る。 */
-async function listItems(client: NizimaClient): Promise<Item[]> {
-  const scene = (await client.request("GetCurrentSceneId")) as {
-    SceneId: string;
-  };
-  const result = (await client
-    .request("GetItems", { SceneId: scene.SceneId })
-    .catch(() => null)) as { Items?: Item[] } | null;
+async function listItems(
+  client: NizimaClient,
+  sceneId: string,
+): Promise<ItemInfo[]> {
+  const result = await client
+    .request<GetItemsResponse>("GetItems", { SceneId: sceneId })
+    .catch(() => null);
   return result?.Items ?? [];
 }
 
 /** クレジットとして出したアイテムを探す。画像の置き場で見分ける。 */
-function findCredits(items: Item[]): Item[] {
+function findCredits(items: ItemInfo[]): ItemInfo[] {
   const target = IMAGE_PATH.replace(/\\/g, "/").toLowerCase();
   return items.filter(
     (item) => (item.ItemPath ?? "").replace(/\\/g, "/").toLowerCase() === target,
@@ -96,7 +109,8 @@ function findCredits(items: Item[]): Item[] {
  * 毎回送ると、手で動かした位置が元へ戻ってしまう。
  */
 export async function showCredit(client: NizimaClient): Promise<boolean> {
-  const already = findCredits(await listItems(client));
+  const sceneId = await currentSceneId(client);
+  const already = findCredits(await listItems(client, sceneId));
   if (already.length > 0) return false;
 
   await renderImage(CREDIT_TEXT, IMAGE_PATH, COLOR, {
@@ -105,13 +119,10 @@ export async function showCredit(client: NizimaClient): Promise<boolean> {
     maxLines: MAX_LINES,
   });
 
-  const scene = (await client.request("GetCurrentSceneId")) as {
-    SceneId: string;
-  };
-  const added = (await client.request("AddItem", {
-    SceneId: scene.SceneId,
+  const added = await client.request<AddItemResponse>("AddItem", {
+    SceneId: sceneId,
     ItemPath: IMAGE_PATH,
-  })) as { ItemId: string };
+  });
 
   await client.request("MoveItem", {
     ItemId: added.ItemId,
@@ -127,7 +138,8 @@ export async function showCredit(client: NizimaClient): Promise<boolean> {
 
 /** クレジットを画面から消す。消した数を返す。 */
 export async function hideCredit(client: NizimaClient): Promise<number> {
-  const targets = findCredits(await listItems(client));
+  const sceneId = await currentSceneId(client);
+  const targets = findCredits(await listItems(client, sceneId));
   for (const item of targets) {
     await client
       .request("RemoveItem", { ItemId: item.ItemId })

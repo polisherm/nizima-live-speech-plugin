@@ -1,4 +1,11 @@
 import type { NizimaClient } from "./nizima-client.js";
+import type {
+  ExpressionInfo,
+  GetCubismParametersResponse,
+  GetExpressionsResponse,
+  GetMotionsResponse,
+  MotionInfo,
+} from "./nizima-types.js";
 
 /**
  * 発言の感情を、表情とモーションに割り当てる。
@@ -117,18 +124,41 @@ export function splitIntoEmotionSegments(
  * 素の顔へ戻す表情は Overwrite で値を握る。残ったままだと、
  * 新しい表情の加算を打ち消して顔が変わらない。
  */
+/**
+ * 名前で表情を引く。そのモデルが持っていなければ何も返さない。
+ *
+ * 一覧はモデルを入れ替えない限り変わらない。それでも毎回取り直す。
+ * 覚えておくと、model3.json へ足した表情が反映されないため。
+ */
+async function findExpression(
+  client: NizimaClient,
+  modelId: string,
+  name: string,
+): Promise<ExpressionInfo | undefined> {
+  const result = await client
+    .request<GetExpressionsResponse>("GetExpressions", { ModelId: modelId })
+    .catch(() => null);
+  return result?.Expressions.find((e) => e.Name === name);
+}
+
+/** 名前でモーションを引く。持っていなければ何も返さない。 */
+async function findMotion(
+  client: NizimaClient,
+  modelId: string,
+  name: string,
+): Promise<MotionInfo | undefined> {
+  const result = await client
+    .request<GetMotionsResponse>("GetMotions", { ModelId: modelId })
+    .catch(() => null);
+  return result?.Motions.find((m) => m.Name === name);
+}
+
 async function startExpression(
   client: NizimaClient,
   modelId: string,
   name: string,
 ): Promise<void> {
-  const expressions = (await client
-    .request("GetExpressions", { ModelId: modelId })
-    .catch(() => null)) as {
-    Expressions: Array<{ Name: string; ExpressionPath: string }>;
-  } | null;
-
-  const found = expressions?.Expressions.find((e) => e.Name === name);
+  const found = await findExpression(client, modelId, name);
   if (!found) return;
 
   await client
@@ -196,12 +226,7 @@ export async function applyEmotion(
   }
 
   if (mapping.motion) {
-    const motions = (await client
-      .request("GetMotions", { ModelId: modelId })
-      .catch(() => null)) as {
-      Motions: Array<{ Name?: string; MotionPath?: string }>;
-    } | null;
-    const found = motions?.Motions.find((m) => m.Name === mapping.motion);
+    const found = await findMotion(client, modelId, mapping.motion);
     if (found?.MotionPath) {
       await client
         .request("StartMotion", {
@@ -235,12 +260,7 @@ export async function returnToIdle(
   client: NizimaClient,
   modelId: string,
 ): Promise<void> {
-  const motions = (await client
-    .request("GetMotions", { ModelId: modelId })
-    .catch(() => null)) as {
-    Motions: Array<{ Name?: string; MotionPath?: string }>;
-  } | null;
-  const idle = motions?.Motions.find((m) => m.Name === IDLE_MOTION_NAME);
+  const idle = await findMotion(client, modelId, IDLE_MOTION_NAME);
   if (!idle?.MotionPath) return;
   await client
     .request("StartMotion", { ModelId: modelId, MotionPath: idle.MotionPath })
@@ -266,7 +286,7 @@ export const RESET_EXPRESSION_NAME = "exp_reset";
  * ParamPatternBrow は「Pattern」が先頭に来るため Brow では拾えない。
  * ParamSweat も漏れていて、汗をかいた顔のまま次の発言へ持ち越していた。
  */
-const FACE_PARAM_PATTERN =
+export const FACE_PARAM_PATTERN =
   /^Param(Eye|Brow|Mouth|Cheek|Tere|Face|Sweat|Pattern|Tongue)/i;
 
 /**
@@ -286,15 +306,10 @@ export async function resetEmotion(
   client: NizimaClient,
   modelId: string,
 ): Promise<void> {
-  const expressions = (await client
-    .request("GetExpressions", { ModelId: modelId })
-    .catch(() => null)) as {
-    Expressions: Array<{
-      Name: string;
-      ExpressionPath: string;
-      Active?: boolean;
-    }>;
-  } | null;
+  // ここは一覧そのものが要る。いま出ている表情を数えるため。
+  const expressions = await client
+    .request<GetExpressionsResponse>("GetExpressions", { ModelId: modelId })
+    .catch(() => null);
 
   const reset = expressions?.Expressions.find(
     (e) => e.Name === RESET_EXPRESSION_NAME,
@@ -328,11 +343,11 @@ export async function resetEmotion(
     .request("StopAllExpressions", { ModelId: modelId })
     .catch(() => {});
 
-  const defs = (await client
-    .request("GetCubismParameters", { ModelId: modelId })
-    .catch(() => null)) as {
-    CubismParameters?: Array<{ Id: string; DefaultValue: number }>;
-  } | null;
+  const defs = await client
+    .request<GetCubismParametersResponse>("GetCubismParameters", {
+      ModelId: modelId,
+    })
+    .catch(() => null);
 
   const face = (defs?.CubismParameters ?? []).filter((p) =>
     FACE_PARAM_PATTERN.test(p.Id),

@@ -129,7 +129,17 @@ export class NizimaClient {
     this.eventHandlers.set(method, handler);
   }
 
-  request(method: string, data: unknown = {}, timeoutMs = 15000): Promise<unknown> {
+  /**
+   * 1 つ問い合わせる。返る形は呼ぶ側が型引数で決める。
+   *
+   * 届いた JSON をその型として扱うだけで、中身は確かめない。
+   * 型は nizima-types.ts にまとめてある。
+   */
+  request<T = unknown>(
+    method: string,
+    data: unknown = {},
+    timeoutMs = 15000,
+  ): Promise<T> {
     const socket = this.socket;
     if (!socket || socket.readyState !== WebSocket.OPEN) {
       return Promise.reject(new Error("not connected"));
@@ -145,7 +155,7 @@ export class NizimaClient {
       Data: data,
     };
 
-    return new Promise((resolve, reject) => {
+    return new Promise<T>((resolve, reject) => {
       const timer = setTimeout(() => {
         this.pending.delete(id);
         reject(new Error(`${method} timed out (${timeoutMs}ms)`));
@@ -154,7 +164,7 @@ export class NizimaClient {
       this.pending.set(id, {
         resolve: (value) => {
           clearTimeout(timer);
-          resolve(value);
+          resolve(value as T);
         },
         reject: (error) => {
           clearTimeout(timer);

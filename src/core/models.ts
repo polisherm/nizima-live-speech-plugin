@@ -60,6 +60,13 @@ export const EMOTION_NAMES = Object.keys(COMMON_LOOKS);
 export interface ModelDefinition {
   /** nizima 側のモデル名。口パク用に作った複製のフォルダ名を指す。 */
   modelName: string;
+  /**
+   * VOICEVOX の音源の名前。
+   *
+   * 画面に置くクレジットに使う（credit.ts）。
+   * ここのキーは呼びやすい短い名前にしてあるため、正式な名前を別に持つ。
+   */
+  voiceName: string;
   /** 普段の声。VOICEVOX の話者 ID。 */
   speakerId: number;
   /** ペルソナ定義。会話させるときに system prompt として読む。 */
@@ -78,6 +85,7 @@ export interface ModelDefinition {
 export const MODELS: Record<string, ModelDefinition> = {
   めたん: {
     modelName: "shikoku_metan_talk",
+    voiceName: "四国めたん",
     speakerId: 2, // 四国めたん ノーマル
     personaPath: path.join(config.personaDir, "四国めたん.md"),
     subtitleColor: "#FF8FC7", // 髪色に寄せたピンク。背景が明るいので薄くしすぎない
@@ -91,6 +99,7 @@ export const MODELS: Record<string, ModelDefinition> = {
   },
   ずんだもん: {
     modelName: "zundamon_talk",
+    voiceName: "ずんだもん",
     speakerId: 3, // ずんだもん ノーマル
     personaPath: path.join(config.personaDir, "ずんだもん.md"),
     subtitleColor: "#7BE85F", // 髪色に寄せた緑。背景が明るいので薄くしすぎない
