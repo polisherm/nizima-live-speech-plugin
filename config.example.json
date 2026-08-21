@@ -1,5 +1,11 @@
 {
   "personaDir": "C:/path/to/your/personas",
   "pluginDeveloper": "your-name",
-  "modelsRoot": "C:/Users/you/AppData/Roaming/Live2D/nizima LIVE/models"
+  "modelsRoot": "C:/Users/you/AppData/Roaming/Live2D/nizima LIVE/models",
+  "voicevoxUrl": "http://127.0.0.1:50021",
+  "voicevoxMaxPauseSec": 0.35,
+  "voicevoxPauseScale": 1,
+  "discussModel": "claude-sonnet-5",
+  "verifyModel": "claude-sonnet-5",
+  "subtitleWithName": true
 }

@@ -1,35 +1,14 @@
 import { writeFileSync } from "node:fs";
 
-const VOICEVOX_URL = process.env.VOICEVOX_URL ?? "http://127.0.0.1:50021";
+import { config } from "./config.js";
 
-/**
- * 句読点で入る無音の長さの倍率。
- *
- * 意味の切れ目に区切りを入れるのは、読みが変わる場所だけにしてある。
- * 数が絞られているため、既定の長さのままでよい。
- *
- * VOICEVOX_PAUSE_SCALE で変えられる。耳で確かめて決める値なので、
- * 走らせながら試せるようにしてある。
- */
-const PAUSE_LENGTH_SCALE = Number.parseFloat(
-  process.env.VOICEVOX_PAUSE_SCALE ?? "1",
-);
-
-/**
- * 句読点で黙る時間の上限（秒）。
- *
- * VOICEVOX は、読点の前に来る語で黙る長さを変える。
- * 感動詞のあとは長くとる。「ああ、」で 0.48 秒、「うーん、」で 0.63 秒。
- * ふつうの語のあとは 0.25 秒から 0.34 秒に収まる。
- *
- * ひとりで語るならこれでよいが、掛け合いでは間延びして聞こえる。
- * 短いほうへ合わせるのではなく、長すぎるものだけを抑える。
- *
- * VOICEVOX_MAX_PAUSE で変えられる。耳で確かめて決める値。
- */
-const MAX_PAUSE_SEC = Number.parseFloat(
-  process.env.VOICEVOX_MAX_PAUSE ?? "0.35",
-);
+// 待ち受け先と、間の取り方は config.ts が持つ。
+//
+// 「ああ、」のあとは 0.48 秒、「うーん、」のあとは 0.63 秒。
+// ふつうの語のあとは 0.25 秒から 0.34 秒に収まる。上限はこの実測から決めた。
+const VOICEVOX_URL = config.voicevoxUrl;
+const PAUSE_LENGTH_SCALE = config.voicevoxPauseScale;
+const MAX_PAUSE_SEC = config.voicevoxMaxPauseSec;
 
 /**
  * 読み上げの単位の末尾に足す無音（秒）。

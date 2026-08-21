@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { config } from "../core/config.js";
 import { NizimaClient } from "../core/nizima-client.js";
 import {
   resolveModelIds,
@@ -14,11 +15,11 @@ import { Subtitle, closeSubtitleRenderer } from "../core/subtitle.js";
 import { parseScript, type ScriptLine } from "../core/takes.js";
 import { readStdin } from "./shared.js";
 
-/** 字幕を出すか。0 を渡すと声だけになる。 */
+/** 字幕を出すか。SUBTITLE=0 を渡すと声だけになる。 */
 const SUBTITLE_ENABLED = process.env.SUBTITLE !== "0";
 
 /** 字幕に話者名を出すか。 */
-const SUBTITLE_WITH_NAME = process.env.SUBTITLE_WITH_NAME !== "0";
+const SUBTITLE_WITH_NAME = config.subtitleWithName;
 
 /**
  * 台本を読んで、複数のモデルに順番に喋らせる。

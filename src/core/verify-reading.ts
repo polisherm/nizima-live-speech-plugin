@@ -9,20 +9,14 @@
 //
 // 台本はまとめて 1 回で見せる。台詞ごとに問うと、そのたびに起動を待つ。
 import { query } from "@anthropic-ai/claude-agent-sdk";
+import { config } from "./config.js";
 import { audioQueryKana } from "./voicevox.js";
 import { finishReading } from "./format-speech.js";
 import { parseLine, toReading } from "./line-parser.js";
 import { EMOTIONS } from "./emotion.js";
 
-/**
- * 読みの確認に使うモデル。
- *
- * 台本 1 本につき 1 回しか呼ばない。台詞をまとめて 1 度に見せるため。
- * 回数が少ないので、軽さより見落としの少なさを採る。
- *
- * VERIFY_MODEL で差し替えられる。
- */
-const MODEL = process.env.VERIFY_MODEL ?? "claude-sonnet-5";
+/** 読みの確認に使うモデル。差し替えは config.local.json の verifyModel で。 */
+const MODEL = config.verifyModel;
 
 /**
  * 読みからアクセントの記号を落とす。

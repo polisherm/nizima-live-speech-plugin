@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { query, type SDKUserMessage } from "@anthropic-ai/claude-agent-sdk";
+import { config } from "../core/config.js";
 import { performLine, prepareLine } from "../core/perform.js";
 import { buildFixPrompt, acceptFix } from "../core/verify-reading.js";
 import { TAKES_DIR } from "../core/takes.js";
@@ -48,17 +49,17 @@ import {
  * 上位 2 本に両方が 1 本ずつ入り、差は付かなかった。
  * 会話の面白さで劣らないため、単価の低いほうを採る。
  *
- * DISCUSS_MODEL で差し替えられる。
+ * 差し替えは config.local.json の discussModel で。
  */
-const MODEL = process.env.DISCUSS_MODEL ?? "claude-sonnet-5";
+const MODEL = config.discussModel;
 
 // 発言と発言の間はここで作らない。
 //
 // 音声の末尾に、文の終わりぶんの無音が既に入っている。
 // ここでも待つと足し算になり、掛け合いが間延びする。
 
-/** 字幕に話者名を付けるか。2 体が交互に喋るため、既定では付ける。 */
-const SUBTITLE_WITH_NAME = process.env.SUBTITLE_WITH_NAME !== "0";
+/** 字幕に話者名を付けるか。 */
+const SUBTITLE_WITH_NAME = config.subtitleWithName;
 
 /** 字幕を出すか。SUBTITLE=0 で切る。 */
 const SUBTITLE_ENABLED = process.env.SUBTITLE !== "0";

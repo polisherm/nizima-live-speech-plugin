@@ -30,6 +30,22 @@ npm install
 | `personaDir` | `personas/` | ペルソナ定義の置き場 |
 | `pluginDeveloper` | `nizima-agent-bridge` | nizima の登録に出る開発者名 |
 | `modelsRoot` | `%APPDATA%/Live2D/nizima LIVE/models` | 口パク用の複製を作る先 |
+| `voicevoxUrl` | `http://127.0.0.1:50021` | VOICEVOX Engine の待ち受け先 |
+| `voicevoxMaxPauseSec` | `0.35` | 句読点で黙る時間の上限（秒） |
+| `voicevoxPauseScale` | `1` | 句読点で入る無音の長さの倍率 |
+| `discussModel` | `claude-sonnet-5` | 発言を作るモデル |
+| `verifyModel` | `claude-sonnet-5` | 読みを確かめるモデル |
+| `subtitleWithName` | `true` | 字幕に話者名を出すか |
+
+走らせるたびに切り替えたいものは、環境変数で渡す。
+
+| 変数 | 効果 |
+|---|---|
+| `SUBTITLE=0` | 字幕を出さない |
+| `SPEAK=0` | 喋らせず、台本だけ作る（`discuss`） |
+| `FACE_FRONT=0` | 正面へ向け続けるのをやめる（`cast`） |
+| `SUBTITLE_KEEP=1` | 出した字幕の画像を消さずに残す |
+| `STYLE_NOTE="..."` | 掛け合いの運び方を、その回だけ注文する（`discuss`） |
 
 初回接続時に nizima LIVE 側へ登録通知が出る。
 プラグインマネージャーで `nizima-agent-bridge` のトグルを有効にする。

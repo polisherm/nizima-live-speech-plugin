@@ -5,6 +5,15 @@
 // 書いた項目だけが既定を上書きする。
 //
 // config.local.json は追跡しない。人によって中身が違うため。
+//
+// ここに置くのは、その環境で決めたら変えないもの。
+// 走らせるたびに切り替えるスイッチは環境変数で渡す。混ぜると置き場が読めなくなる。
+//
+//   SUBTITLE=0       字幕を出さない
+//   SPEAK=0          喋らせず、台本だけ作る
+//   FACE_FRONT=0     正面へ向け続けるのをやめる
+//   SUBTITLE_KEEP=1  出した字幕の画像を消さずに残す
+//   STYLE_NOTE=...   掛け合いの運び方を、その回だけ注文する
 
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -37,6 +46,39 @@ export interface Config {
    * 口パク用の複製を作るときに読み書きする（scripts/make-talk-models.py）。
    */
   modelsRoot: string;
+  /** VOICEVOX Engine の待ち受け先。 */
+  voicevoxUrl: string;
+  /**
+   * 句読点で黙る時間の上限（秒）。
+   *
+   * VOICEVOX は読点の前に来る語で黙る長さを変える。感動詞のあとは長くとる。
+   * ひとりで語るならこれでよいが、掛け合いでは間延びして聞こえる。
+   * 短いほうへ合わせるのではなく、長すぎるものだけを抑える。
+   *
+   * 耳で確かめて決める値。
+   */
+  voicevoxMaxPauseSec: number;
+  /**
+   * 句読点で入る無音の長さの倍率。
+   *
+   * 区切りを入れるのは読みが変わる場所だけにしてあるため、既定のままでよい。
+   */
+  voicevoxPauseScale: number;
+  /** 発言を作るモデル。 */
+  discussModel: string;
+  /**
+   * 読みの確認に使うモデル。
+   *
+   * 台本 1 本につき 1 回しか呼ばない。回数が少ないので、
+   * 軽さより見落としの少なさを採る。
+   */
+  verifyModel: string;
+  /**
+   * 字幕に話者名を出すか。
+   *
+   * 2 体が交互に喋るときは、誰の台詞かが色だけでは追いにくい。
+   */
+  subtitleWithName: boolean;
 }
 
 const DEFAULTS: Config = {
@@ -48,6 +90,12 @@ const DEFAULTS: Config = {
     "nizima LIVE",
     "models",
   ),
+  voicevoxUrl: "http://127.0.0.1:50021",
+  voicevoxMaxPauseSec: 0.35,
+  voicevoxPauseScale: 1,
+  discussModel: "claude-sonnet-5",
+  verifyModel: "claude-sonnet-5",
+  subtitleWithName: true,
 };
 
 const CONFIG_FILE = path.join(REPO_ROOT, "config.local.json");
@@ -76,6 +124,17 @@ function load(): Config {
     throw new Error(
       `${CONFIG_FILE} に知らない項目がある: ${unknown.join(", ")}`,
     );
+  }
+
+  // 型も見る。数を待つところに文字列を書くと、計算がすべて NaN になる。
+  // エラーは出ず、音の間だけがおかしくなるので気づきにくい。
+  for (const [key, value] of Object.entries(parsed)) {
+    const expected = typeof DEFAULTS[key as keyof Config];
+    if (typeof value !== expected) {
+      throw new Error(
+        `${CONFIG_FILE} の ${key} は ${expected} で書く（いまは ${typeof value}）`,
+      );
+    }
   }
 
   return { ...DEFAULTS, ...(parsed as Partial<Config>) };
