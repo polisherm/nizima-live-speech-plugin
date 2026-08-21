@@ -11,14 +11,14 @@ import {
   resolveEmotion,
 } from "./emotion.js";
 import { Subtitle, SUBTITLE_MAX_CHARS } from "./subtitle.js";
-import type { Role } from "./roles.js";
+import type { ModelDefinition } from "./models.js";
 
 export interface PerformOptions {
   client: NizimaClient;
   /** 感情タグを含んだままの台詞。 */
   raw: string;
   roleName: string;
-  role: Role;
+  role: ModelDefinition;
   modelId: string;
   subtitle?: Subtitle | null;
   /** 字幕に話者名を出すか。 */

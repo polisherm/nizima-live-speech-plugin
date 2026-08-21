@@ -14,7 +14,7 @@ import {
   MOUTH_INTERVAL_MS,
   type PreparedSpeech,
 } from "../core/speak-core.js";
-import { ROLES, ROLE_NAMES } from "../core/roles.js";
+import { MODELS, MODEL_NAMES } from "../core/models.js";
 import {
   Subtitle,
   closeSubtitleRenderer,
@@ -92,7 +92,7 @@ interface Line {
  * 定義は出力チャネルを問わず使い回すものなので、音声固有の制約で汚さない。
  */
 function buildSystemPrompt(roleName: string, partnerName: string): string {
-  const persona = readFileSync(ROLES[roleName].personaPath, "utf-8");
+  const persona = readFileSync(MODELS[roleName].personaPath, "utf-8");
   return [
     persona,
     "",
@@ -178,7 +178,7 @@ function cleanLine(raw: string): string {
 
   // 先頭の役名プレフィックス。
   // 役名は models.ts が決めるので、記号が入っていても壊れないようにする。
-  for (const name of ROLE_NAMES) {
+  for (const name of MODEL_NAMES) {
     text = text.replace(new RegExp(`^${escapeRegExp(name)}\\s*[:：]\\s*`), "");
   }
 
@@ -264,7 +264,7 @@ const modelIds = await resolveModelIds(client);
 //
 // 誰が出るかは models.ts が決める。ここには名前を書かない。
 // 書くと、モデルを足したときに直す場所が増える。
-const speakers = [...ROLE_NAMES];
+const speakers = [...MODEL_NAMES];
 if (speakers.length !== 2) {
   console.error(
     `2 体で会話させる。models.ts のモデルは ${speakers.length} 体ある: ${speakers.join(" / ")}`,
@@ -286,7 +286,7 @@ if (firstSpeaker ? firstSpeaker === speakers[1] : Math.random() < 0.5) {
 }
 
 const missing = speakers.filter(
-  (name) => !modelIds.has(ROLES[name].modelName),
+  (name) => !modelIds.has(MODELS[name].modelName),
 );
 if (missing.length > 0) {
   console.error(
@@ -307,7 +307,7 @@ const subtitle = SUBTITLE_ENABLED && SPEAK ? new Subtitle(client) : null;
 // 口パクと同じ間隔で送り続けて、戻る余地をなくす。
 const posture = setInterval(() => {
   for (const name of speakers) {
-    const modelId = modelIds.get(ROLES[name].modelName);
+    const modelId = modelIds.get(MODELS[name].modelName);
     if (modelId) void faceFront(client, modelId);
   }
 }, MOUTH_INTERVAL_MS);
@@ -315,7 +315,7 @@ const posture = setInterval(() => {
 /** 中断されたときに口が開いたままにならないよう、両モデルを閉じる。 */
 async function closeMouths(): Promise<void> {
   for (const name of speakers) {
-    const modelId = modelIds.get(ROLES[name].modelName);
+    const modelId = modelIds.get(MODELS[name].modelName);
     if (!modelId) continue;
     await client
       .request("SetLiveParameterValues", {
@@ -348,7 +348,7 @@ console.log(`モデル: ${MODEL}\n`);
 // 喋らせないなら、この準備も要らない。
 if (SPEAK) {
   const warmUpStartedAt = Date.now();
-  await warmUp(Object.values(ROLES).map((role) => role.speakerId), client);
+  await warmUp(Object.values(MODELS).map((role) => role.speakerId), client);
   console.log(`準備を終えた（${Date.now() - warmUpStartedAt}ms）\n`);
 }
 
@@ -408,7 +408,7 @@ function startLine(
   partnerName: string,
   history: Line[],
 ): LineSession {
-  const role = ROLES[roleName];
+  const role = MODELS[roleName];
 
   // 2 つめの問いは、1 つめの答えが出てから決まる。
   // 読み上げた音を見せるため、台詞が決まるまで中身が作れない。
@@ -591,7 +591,7 @@ for (let turn = 0; turn < total; turn++) {
   const fixMs = session.fixMs();
   const fixed = use !== drafted;
 
-  const role = ROLES[roleName];
+  const role = MODELS[roleName];
   const speakerModelId = modelIds.get(role.modelName)!;
 
   // 履歴と台本には、実際に喋る形を残す。
@@ -679,7 +679,7 @@ await closeMouths();
 
 // 姿勢と表情を素へ戻す。最後に喋った側だけでは足りない。
 // 相手の発言を聞いている側にも残り、汗をかいた顔のまま議論が終わる。
-for (const role of Object.values(ROLES)) {
+for (const role of Object.values(MODELS)) {
   const modelId = modelIds.get(role.modelName);
   if (!modelId) continue;
   await returnToIdle(client, modelId);

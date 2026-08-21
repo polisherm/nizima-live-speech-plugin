@@ -7,7 +7,7 @@ import {
   faceFront,
   warmUp,
 } from "../core/speak-core.js";
-import { ROLES } from "../core/roles.js";
+import { MODELS } from "../core/models.js";
 import { performLine, prepareLine } from "../core/perform.js";
 import type { PreparedSpeech } from "../core/speak-core.js";
 import { resetEmotion, returnToIdle } from "../core/emotion.js";
@@ -63,11 +63,11 @@ if (script.length === 0) {
 
 // 台本に出てくる役が全部定義されているか、喋り始める前に確かめる。
 const unknown = [...new Set(script.map((l) => l.role))].filter(
-  (role) => !ROLES[role],
+  (role) => !MODELS[role],
 );
 if (unknown.length > 0) {
   console.error(
-    `定義されていない役: ${unknown.join(", ")}（使えるのは ${Object.keys(ROLES).join(", ")}）`,
+    `定義されていない役: ${unknown.join(", ")}（使えるのは ${Object.keys(MODELS).join(", ")}）`,
   );
   process.exit(1);
 }
@@ -83,7 +83,7 @@ for (const [name, id] of modelIds) {
 }
 
 const missing = [...new Set(script.map((l) => l.role))].filter(
-  (role) => !modelIds.has(ROLES[role].modelName),
+  (role) => !modelIds.has(MODELS[role].modelName),
 );
 if (missing.length > 0) {
   console.error(
@@ -98,7 +98,7 @@ console.log(`\n${script.length} 台詞を再生する\n`);
 
 // 喋り出す前に重い準備を済ませる。台詞の途中で払うと、そこで会話が止まって見える。
 const warmUpStartedAt = Date.now();
-await warmUp([...new Set(script.map((l) => ROLES[l.role].speakerId))], client);
+await warmUp([...new Set(script.map((l) => MODELS[l.role].speakerId))], client);
 console.log(`準備を終えた（${Date.now() - warmUpStartedAt}ms）\n`);
 
 const subtitle = SUBTITLE_ENABLED ? new Subtitle(client) : null;
@@ -110,7 +110,7 @@ const subtitle = SUBTITLE_ENABLED ? new Subtitle(client) : null;
 // 切り分けるのに使う。
 const posture = setInterval(() => {
   if (process.env.FACE_FRONT === "0") return;
-  for (const name of new Set(script.map((l) => ROLES[l.role].modelName))) {
+  for (const name of new Set(script.map((l) => MODELS[l.role].modelName))) {
     const modelId = modelIds.get(name);
     if (modelId) void faceFront(client, modelId);
   }
@@ -120,7 +120,7 @@ const posture = setInterval(() => {
 const toPrepareOptions = (line: ScriptLine) => ({
   raw: line.text,
   roleName: line.role,
-  role: ROLES[line.role],
+  role: MODELS[line.role],
   subtitle,
   withName: SUBTITLE_WITH_NAME,
 });
@@ -134,7 +134,7 @@ let prepared: PreparedSpeech | undefined = script[0]
   : undefined;
 
 for (const [index, line] of script.entries()) {
-  const role = ROLES[line.role];
+  const role = MODELS[line.role];
   const modelId = modelIds.get(role.modelName)!;
   console.log(`[${index + 1}/${script.length}] ${line.role}: ${line.text}`);
 
@@ -168,7 +168,7 @@ clearInterval(posture);
 await subtitle?.clear();
 
 // 姿勢と表情を素へ戻す。聞いている側にも前の感情が残る。
-for (const name of new Set(script.map((l) => ROLES[l.role].modelName))) {
+for (const name of new Set(script.map((l) => MODELS[l.role].modelName))) {
   const modelId = modelIds.get(name);
   if (!modelId) continue;
   await returnToIdle(client, modelId);

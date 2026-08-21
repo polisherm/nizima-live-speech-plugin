@@ -20,17 +20,74 @@ import type {
  * 名前が無いモデルでは、その感情を飛ばす。
  */
 
-// 何をどう出すかは models.ts が持つ。モデル 1 体ぶんの定義をそこにまとめてある。
-export {
-  COMMON_LOOKS as EMOTIONS,
-  EMOTION_NAMES,
-  resolveLook as resolveEmotion,
-  resolveSpeakerId,
-  resolveVoiceTuning,
-  type EmotionLook as EmotionMapping,
-} from "./models.js";
+import { findByModelName, type EmotionLook } from "./models.js";
+import type { VoiceTuning } from "./voicevox.js";
 
-import { COMMON_LOOKS, resolveLook } from "./models.js";
+/**
+ * どのモデルでも使う割り当て。
+ *
+ * 話者の差し替えはここでは決めない。話者ごとに持っているスタイルが違うため。
+ *
+ * 話す速さは当てない。
+ *
+ * 台詞を 1 つだけ聞くなら、遅いほど落ち込んで、速いほど気が立って聞こえる
+ * （probe/try-voice-tuning.ts）。ところが会話に載せると違って聞こえる。
+ * 台詞ごとに速さが変わることのほうが目立ち、感情の違いには結びつかない。
+ * 幅を狭めても同じだった。
+ *
+ * 抑揚も動かさない。振って聞いても、感情の違いには結びつかなかった。
+ *
+ * 声で感情を出せるのは、いまのところ話者のスタイルを差し替える形だけ。
+ * それも合うものが少なく、angry と shy に留まる（models.ts の looks を参照）。
+ */
+export const EMOTIONS: Record<string, EmotionLook> = {
+  neutral: { motion: "mtnFace_talk" },
+  laugh: { expression: "exp_laugh", motion: "mtnBody_laugh" },
+  smile: { expression: "exp_laugh2", motion: "mtnFace_talk" },
+  angry: { expression: "exp_angry", motion: "mtnBody_angry" },
+  sad: { expression: "exp_sad", motion: "mtnFace_sad" },
+  shy: { expression: "exp_shy", motion: "mtnFace_shy" },
+  surprise: { expression: "exp_surprise", motion: "mtnFace_surprise" },
+  think: { motion: "mtnBody_think" },
+  agree: { motion: "mtnBody_yes" },
+  deny: { motion: "mtnBody_no" },
+  point: { motion: "mtnBody_point" },
+};
+
+export const EMOTION_NAMES = Object.keys(EMOTIONS);
+
+/**
+ * モデルと感情から、出す見た目と声を引く。
+ *
+ * 共通の割り当てを土台にして、そのモデルが書いた項目だけを上書きする。
+ * モデル名を渡さなければ共通のまま。
+ */
+export function resolveEmotion(
+  modelName: string | undefined,
+  emotion: string,
+): EmotionLook | undefined {
+  const common = EMOTIONS[emotion];
+  if (!modelName) return common;
+
+  const override = findByModelName(modelName)?.looks?.[emotion];
+  if (!override) return common;
+  return { ...common, ...override };
+}
+
+/** モデルと感情から、喋らせる話者 ID を引く。 */
+export function resolveSpeakerId(modelName: string, emotion: string): number {
+  const model = findByModelName(modelName);
+  if (!model) return 0;
+  return resolveEmotion(modelName, emotion)?.speakerId ?? model.speakerId;
+}
+
+/** モデルと感情から、声の出し方を引く。当てるものが無ければ何も返さない。 */
+export function resolveVoiceTuning(
+  modelName: string,
+  emotion: string,
+): VoiceTuning | undefined {
+  return resolveEmotion(modelName, emotion)?.tuning;
+}
 
 /**
  * 発言の先頭に付いた感情タグを取り出す。
@@ -43,7 +100,7 @@ export function extractEmotion(raw: string): {
   text: string;
 } {
   const matched = raw.match(/^\s*[[［]\s*([a-zA-Z]+)\s*[\]］]\s*/);
-  const emotion = matched && COMMON_LOOKS[matched[1].toLowerCase()]
+  const emotion = matched && EMOTIONS[matched[1].toLowerCase()]
     ? matched[1].toLowerCase()
     : "neutral";
 
@@ -107,7 +164,7 @@ export function splitIntoEmotionSegments(
   while ((matched = pattern.exec(raw)) !== null) {
     push(raw.slice(cursor, matched.index), current);
     const name = matched[1].toLowerCase();
-    if (COMMON_LOOKS[name]) current = name;
+    if (EMOTIONS[name]) current = name;
     cursor = matched.index + matched[0].length;
   }
   push(raw.slice(cursor), current);
@@ -192,9 +249,7 @@ export async function applyExpressionOnly(
   emotion: string,
   modelName?: string,
 ): Promise<void> {
-  const mapping = modelName
-    ? resolveLook(modelName, emotion)
-    : COMMON_LOOKS[emotion];
+  const mapping = resolveEmotion(modelName, emotion);
 
   if (!mapping?.expression) {
     await client
@@ -216,9 +271,7 @@ export async function applyEmotion(
   emotion: string,
   modelName?: string,
 ): Promise<void> {
-  const mapping = modelName
-    ? resolveLook(modelName, emotion)
-    : COMMON_LOOKS[emotion];
+  const mapping = resolveEmotion(modelName, emotion);
   if (!mapping) return;
 
   if (mapping.expression) {

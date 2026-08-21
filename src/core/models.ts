@@ -3,11 +3,8 @@
 // 1 体のモデルに、見た目と声をまとめて持たせる。
 // キャラクターとモデルは 1 対 1 で結びつく。
 //
-// 感情から何を出すかは、モデルによって変わる。
-// 表情とモーションの名前はモデル間でほぼ共通だが、中身は同じとは限らない。
-// 声も、話者ごとに持っているスタイルが違う。
-//
-// 共通の割り当てを土台にして、合わないものだけモデルごとに差し替える。
+// ここが持つのは「誰が居るか」だけ。
+// 感情から何を出すかを決めるのは emotion.ts。
 
 import path from "node:path";
 
@@ -23,39 +20,6 @@ export interface EmotionLook {
   /** 声の出し方。書かなければ既定のまま喋る。 */
   tuning?: VoiceTuning;
 }
-
-/**
- * どのモデルでも使う割り当て。
- *
- * 話者の差し替えはここでは決めない。話者ごとに持っているスタイルが違うため。
- *
- * 話す速さは当てない。
- *
- * 台詞を 1 つだけ聞くなら、遅いほど落ち込んで、速いほど気が立って聞こえる
- * （probe/try-voice-tuning.ts）。ところが会話に載せると違って聞こえる。
- * 台詞ごとに速さが変わることのほうが目立ち、感情の違いには結びつかない。
- * 幅を狭めても同じだった。
- *
- * 抑揚も動かさない。振って聞いても、感情の違いには結びつかなかった。
- *
- * 声で感情を出せるのは、いまのところ話者のスタイルを差し替える形だけ。
- * それも合うものが少なく、angry と shy に留まる（各モデルの looks を参照）。
- */
-export const COMMON_LOOKS: Record<string, EmotionLook> = {
-  neutral: { motion: "mtnFace_talk" },
-  laugh: { expression: "exp_laugh", motion: "mtnBody_laugh" },
-  smile: { expression: "exp_laugh2", motion: "mtnFace_talk" },
-  angry: { expression: "exp_angry", motion: "mtnBody_angry" },
-  sad: { expression: "exp_sad", motion: "mtnFace_sad" },
-  shy: { expression: "exp_shy", motion: "mtnFace_shy" },
-  surprise: { expression: "exp_surprise", motion: "mtnFace_surprise" },
-  think: { motion: "mtnBody_think" },
-  agree: { motion: "mtnBody_yes" },
-  deny: { motion: "mtnBody_no" },
-  point: { motion: "mtnBody_point" },
-};
-
-export const EMOTION_NAMES = Object.keys(COMMON_LOOKS);
 
 export interface ModelDefinition {
   /** nizima 側のモデル名。口パク用に作った複製のフォルダ名を指す。 */
@@ -74,7 +38,10 @@ export interface ModelDefinition {
   /** 字幕の文字色。誰が喋っているかを色でも分かるようにする。 */
   subtitleColor: string;
   /**
-   * 共通の割り当てを差し替えるところ。
+   * 共通の割り当てから変えるところ。書いた項目だけが上書きされる。
+   *
+   * 表情とモーションの名前はモデル間でほぼ共通だが、中身は同じとは限らない。
+   * 声も、話者ごとに持っているスタイルが違う。
    *
    * 見た目は実際に再生して確かめること。名前からの推測は当てにならない。
    * 声は聞き比べて決める（probe/try-styles.ts）。
@@ -93,8 +60,8 @@ export const MODELS: Record<string, ModelDefinition> = {
       // 声を変えるのは、聞いて分かるものだけにする。
       // VOICEVOX のスタイルは声質の違いで、感情のために用意されたものではない。
       // 合わないものに当てると、かえって不自然になる。
-      angry: { ...COMMON_LOOKS.angry, speakerId: 6 }, // ツンツン。冷たくなる
-      shy: { ...COMMON_LOOKS.shy, speakerId: 0 }, // あまあま
+      angry: { speakerId: 6 }, // ツンツン。冷たくなる
+      shy: { speakerId: 0 }, // あまあま
     },
   },
   ずんだもん: {
@@ -116,9 +83,9 @@ export const MODELS: Record<string, ModelDefinition> = {
       //
       // 怒りは掛け合いの一言に出る程度で、口が止まっても目立たない。
       // 頬の膨らみを残す側を採る。
-      angry: { ...COMMON_LOOKS.angry, speakerId: 7 }, // ツンツン
+      angry: { speakerId: 7 }, // ツンツン
       // exp_shy はハート目。照れというより好意の表現なので差し替える。
-      shy: { expression: "exp_shy2", motion: "mtnFace_shy", speakerId: 1 },
+      shy: { expression: "exp_shy2", speakerId: 1 },
       // なみだめ（76）は大泣きの声。ここでの sad は軽くぼやく程度なので使わない。
     },
   },
@@ -126,31 +93,9 @@ export const MODELS: Record<string, ModelDefinition> = {
 
 export const MODEL_NAMES = Object.keys(MODELS);
 
-/** モデル名から定義を引く。nizima 側の名前で探す。 */
-function findByModelName(modelName: string): ModelDefinition | undefined {
+/** nizima 側のモデル名から定義を引く。 */
+export function findByModelName(
+  modelName: string,
+): ModelDefinition | undefined {
   return Object.values(MODELS).find((m) => m.modelName === modelName);
-}
-
-/** モデルと感情から、出す見た目と声を引く。 */
-export function resolveLook(
-  modelName: string,
-  emotion: string,
-): EmotionLook | undefined {
-  const model = findByModelName(modelName);
-  return model?.looks?.[emotion] ?? COMMON_LOOKS[emotion];
-}
-
-/** モデルと感情から、喋らせる話者 ID を引く。 */
-export function resolveSpeakerId(modelName: string, emotion: string): number {
-  const model = findByModelName(modelName);
-  if (!model) return 0;
-  return resolveLook(modelName, emotion)?.speakerId ?? model.speakerId;
-}
-
-/** モデルと感情から、声の出し方を引く。当てるものが無ければ何も返さない。 */
-export function resolveVoiceTuning(
-  modelName: string,
-  emotion: string,
-): VoiceTuning | undefined {
-  return resolveLook(modelName, emotion)?.tuning;
 }

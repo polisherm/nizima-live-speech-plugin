@@ -9,7 +9,7 @@
 // 先読みが再生に間に合わなくなって切れ目で無音が伸びる。
 // 台本にしてからまとめて直せば、再生の速さに響かない。
 import { readFileSync, writeFileSync } from "node:fs";
-import { ROLES } from "../core/roles.js";
+import { MODELS } from "../core/models.js";
 import { parseScriptLine } from "../core/takes.js";
 import { fixMisreadingsAll, type LineToCheck } from "../core/verify-reading.js";
 
@@ -30,7 +30,7 @@ for (const [at, line] of lines.entries()) {
   if (line.trim().startsWith("#")) continue;
   const parsed = parseScriptLine(line);
   if (!parsed) continue;
-  const role = ROLES[parsed.role];
+  const role = MODELS[parsed.role];
   if (!role) continue;
   targets.push({ at, roleName: parsed.role });
   toCheck.push({ text: parsed.text, speakerId: role.speakerId });
