@@ -129,15 +129,25 @@ export function parseLine(
     const candidates: Array<{ at: number; length: number; apply: () => void }> =
       [];
 
+    // 知らない名前でも候補には入れる。
+    //
+    // 探すのは最初の 1 つだけなので、ここで飛ばすと rest が縮まない。
+    // 綴りを間違えたタグが 1 つあるだけで、その先にある正しいタグが
+    // すべて読まれなくなり、発言のあいだ表情が変わらなくなる。
+    //
+    // 知らない名前は文字として書き出す。画面に出れば綴り違いに気づける。
     const tag = rest.match(EMOTION_TAG);
-    if (tag?.index !== undefined && isEmotion(tag[1].toLowerCase())) {
+    if (tag?.index !== undefined) {
+      const name = tag[1].toLowerCase();
       candidates.push({
         at: tag.index,
         length: tag[0].length,
-        apply: () => {
-          closeSegment();
-          emotion = tag[1].toLowerCase();
-        },
+        apply: isEmotion(name)
+          ? () => {
+              closeSegment();
+              emotion = name;
+            }
+          : () => pushText(tag[0]),
       });
     }
 
