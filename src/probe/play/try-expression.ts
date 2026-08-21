@@ -1,12 +1,12 @@
 // 表情とモーションを 1 回ずつ再生する動作確認スクリプト。
 //
 //   npx tsx src/probe/try-expression.ts [表情名] [モーション名] [モデル名]
-import { NizimaClient } from "../nizima/client.js";
+import { NizimaClient } from "../../nizima/client.js";
 import type {
   GetExpressionsResponse,
   GetMotionsResponse,
-} from "../nizima/types.js";
-import { resolveTarget } from "./shared.js";
+} from "../../nizima/types.js";
+import { resolveTarget } from "../shared.js";
 
 const expressionName = process.argv[2] ?? "exp_laugh";
 const motionName = process.argv[3];

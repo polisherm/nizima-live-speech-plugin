@@ -137,7 +137,11 @@ src/
   stage/     画面に出すもの。字幕とクレジット
   perform/   演じる。モデルの定義・感情・喋らせる
   cli/       日常的に打つ入口
-  probe/     実測ツール。挙動を確かめるのに使う
+  probe/     確かめる道具。用途で分けてある
+    inspect/   何があるか見る。表情・パラメータ・アイテム・ずれ・字幕の文字列
+    mouth/     口パクが動かないときの切り分け
+    listen/    声を聞き比べる
+    play/      出して目で見る
   setup/     モデルの加工。待機モーションと素の表情を作る
 scripts/     PowerShell と Python。字幕の描画とモデルの複製
 personas/    ペルソナ定義。会話の system prompt として読む

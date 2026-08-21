@@ -10,14 +10,14 @@
 // 感情を 1 つに絞り、その台詞に声が合うかだけを聞く。
 //
 // スタイルの一覧は VOICEVOX から取る。手で並べると、増えたときに古いまま残る。
-import { synthesize, listSpeakers } from "../voice/voicevox.js";
-import { AudioPlayer } from "../voice/audio-player.js";
-import { MODELS } from "../perform/models.js";
+import { synthesize, listSpeakers } from "../../voice/voicevox.js";
+import { AudioPlayer } from "../../voice/audio-player.js";
+import { MODELS } from "../../perform/models.js";
 import { EMOTION_LINES, EMOTION_LINE_NAMES } from "./emotion-lines.js";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { rmSync } from "node:fs";
-import { wait } from "./shared.js";
+import { wait } from "../shared.js";
 
 /** 聞き比べのあいだに置く間。続けて鳴らすと違いが分からない。 */
 const GAP_MS = 700;

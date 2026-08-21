@@ -17,15 +17,15 @@
 //   cubism          CubismParameter の ParamMouthOpenY へ直接送る
 //   live:<Id>       任意の LiveParameter へ送る（例 live:LipSyncMouthOpen）
 //   cubism:<Id>     任意の CubismParameter へ送る
-import { NizimaClient } from "../nizima/client.js";
+import { NizimaClient } from "../../nizima/client.js";
 import type {
   GetCubismParameterValuesResponse,
   GetExpressionsResponse,
   GetMotionsResponse,
-} from "../nizima/types.js";
-import { resolveEmotion, resetEmotion } from "../perform/emotion.js";
-import { MOUTH_INTERVAL_MS } from "../perform/speak.js";
-import { resolveTarget, wait } from "./shared.js";
+} from "../../nizima/types.js";
+import { resolveEmotion, resetEmotion } from "../../perform/emotion.js";
+import { MOUTH_INTERVAL_MS } from "../../perform/speak.js";
+import { resolveTarget, wait } from "../shared.js";
 
 type Mode = "none" | "expression" | "motion" | "both";
 

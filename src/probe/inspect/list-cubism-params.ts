@@ -4,9 +4,9 @@
 //   例: npx tsx src/probe/list-cubism-params.ts zundamon Mouth
 //
 // 絞り込みは Id への部分一致。省くと全件出す。
-import { NizimaClient } from "../nizima/client.js";
-import type { GetCubismParametersResponse } from "../nizima/types.js";
-import { resolveTarget } from "./shared.js";
+import { NizimaClient } from "../../nizima/client.js";
+import type { GetCubismParametersResponse } from "../../nizima/types.js";
+import { resolveTarget } from "../shared.js";
 
 const filter = process.argv[3];
 

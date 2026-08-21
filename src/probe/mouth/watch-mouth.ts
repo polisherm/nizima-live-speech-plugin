@@ -9,11 +9,11 @@
 // 送った値とモデルの値を並べて出す。
 // 食い違えば、何かが上書きしている。いつ食い違うかが手がかりになる。
 // 身振りの再生中と再生後で通り方が変わるかも、時間の並びから読める。
-import { NizimaClient } from "../nizima/client.js";
-import type { GetCubismParameterValuesResponse } from "../nizima/types.js";
-import { applyEmotion, resetEmotion } from "../perform/emotion.js";
-import { MOUTH_INTERVAL_MS, mouthOpenAt } from "../perform/speak.js";
-import { resolveTarget, wait } from "./shared.js";
+import { NizimaClient } from "../../nizima/client.js";
+import type { GetCubismParameterValuesResponse } from "../../nizima/types.js";
+import { applyEmotion, resetEmotion } from "../../perform/emotion.js";
+import { MOUTH_INTERVAL_MS, mouthOpenAt } from "../../perform/speak.js";
+import { resolveTarget, wait } from "../shared.js";
 
 const emotionName = process.argv[2] ?? "angry";
 const seconds = Number.parseFloat(process.argv[4] ?? "10");

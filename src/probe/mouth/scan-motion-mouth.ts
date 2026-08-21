@@ -6,15 +6,15 @@
 // モーションは時間とともに動くため、少し間を置いて何度も読み、いちばん開いた値を見る。
 //
 // 0 に近ければ口パクが通る。大きいほどモーションが口を握っている。
-import { NizimaClient } from "../nizima/client.js";
+import { NizimaClient } from "../../nizima/client.js";
 import type {
   GetCubismParameterValuesResponse,
   GetMotionsResponse,
-} from "../nizima/types.js";
-import { EMOTION_NAMES } from "../script/emotions.js";
-import { resolveEmotion, resetEmotion } from "../perform/emotion.js";
-import { resolveModelIds } from "../perform/speak.js";
-import { wait } from "./shared.js";
+} from "../../nizima/types.js";
+import { EMOTION_NAMES } from "../../script/emotions.js";
+import { resolveEmotion, resetEmotion } from "../../perform/emotion.js";
+import { resolveModelIds } from "../../perform/speak.js";
+import { wait } from "../shared.js";
 
 /** 1 つのモーションを見る回数と間隔。動きの山を捉えるだけの長さを取る。 */
 const SAMPLES = 12;
