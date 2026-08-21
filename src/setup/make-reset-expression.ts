@@ -1,9 +1,9 @@
 // 表情を素の顔へ戻すための表情ファイルを作る。
 //
-//   npx tsx src/setup/make-reset-expression.ts [モデル名...]
+//   npx tsx src/setup/make-reset-expression.ts <モデル名...>
 //   例: npx tsx src/setup/make-reset-expression.ts zundamon_talk shikoku_metan_talk
 //
-// モデル名を省くと、画面に出ているモデルをすべて対象にする。
+// モデル名は省けない。省略を「全部」と読むと元のモデルまで書き換わるため。
 //
 // 表情はパラメータを Add で加算する。止めても加算が残るものがあり、
 // 汗や眉のパターンが顔に残ったままになる。

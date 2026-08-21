@@ -1,6 +1,6 @@
 // 素の姿へ戻すための待機モーションを作る。
 //
-//   npx tsx src/setup/make-idle-motion.ts [モデル名...]
+//   npx tsx src/setup/make-idle-motion.ts <モデル名...>
 //
 // モーションが動かした値は、そのモーションを止めても既定へ戻らない。
 // 止めると一段で飛び、ループを切っても最後の値で固まる。
