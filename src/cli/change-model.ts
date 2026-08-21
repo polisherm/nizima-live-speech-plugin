@@ -4,8 +4,8 @@
 //
 // 位置と大きさが引き継がれるかは差し替えの前後で表示する。
 // 引き継がれない場合は、並べ直しが要る。
-import { NizimaClient } from "../core/nizima-client.js";
-import type { GetModelsResponse, ModelInfo } from "../core/nizima-types.js";
+import { NizimaClient } from "../nizima/client.js";
+import type { GetModelsResponse, ModelInfo } from "../nizima/types.js";
 
 const modelId = process.argv[2];
 const modelPath = process.argv[3];

@@ -1,12 +1,12 @@
 // 登録済みモデル・表示中モデル・シーンを一覧する確認用スクリプト。
 // 2 体以上を並べるとき、どのモデルをどのシーンに追加できるかを調べる。
-import { NizimaClient } from "../core/nizima-client.js";
+import { NizimaClient } from "../nizima/client.js";
 import type {
   GetCurrentSceneIdResponse,
   GetModelsResponse,
   GetRegisteredModelsResponse,
   GetScenesResponse,
-} from "../core/nizima-types.js";
+} from "../nizima/types.js";
 
 const client = new NizimaClient();
 await client.connect();

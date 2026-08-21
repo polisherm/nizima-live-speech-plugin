@@ -1,15 +1,15 @@
 import { rmSync } from "node:fs";
 import path from "node:path";
 import { tmpdir } from "node:os";
-import type { NizimaClient } from "./nizima-client.js";
+import type { NizimaClient } from "../nizima/client.js";
 import type {
   GetExpressionsResponse,
   GetModelsResponse,
-} from "./nizima-types.js";
-import { synthesize, initializeSpeaker, type Silence } from "./voicevox.js";
-import { warmUpSubtitleRenderer, warmUpSubtitleItem } from "./subtitle.js";
-import { finishReading } from "./format-speech.js";
-import { EMOTIONS, resolveSpeakerId, resolveVoiceTuning } from "./emotion.js";
+} from "../nizima/types.js";
+import { synthesize, initializeSpeaker, type Silence } from "../voice/voicevox.js";
+import { AudioPlayer } from "../voice/audio-player.js";
+import { warmUpSubtitleRenderer, warmUpSubtitleItem } from "../stage/subtitle.js";
+import { finishReading } from "../script/format-speech.js";
 import {
   parseLine,
   splitParts,
@@ -17,11 +17,11 @@ import {
   toReading,
   toReadingWithPause,
   type Part,
-} from "./line-parser.js";
+} from "../script/line-parser.js";
+import { EMOTIONS, resolveSpeakerId, resolveVoiceTuning } from "./emotion.js";
 
 /** 表情の名前として通すもの。台詞を読み解くときに使う。 */
 const isKnownEmotion = (name: string) => Boolean(EMOTIONS[name]);
-import { AudioPlayer } from "./audio-player.js";
 
 /**
  * 音を鳴らす常駐プロセス。

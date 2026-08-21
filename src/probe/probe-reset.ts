@@ -9,13 +9,13 @@
 //   3. もう一度同じ表情を出す。ずれが 1 と同じに戻れば、戻す表情が邪魔していない
 //
 // 3 が要る。戻す表情は Overwrite で値を握るため、次の表情を潰す恐れがある。
-import { NizimaClient } from "../core/nizima-client.js";
+import { NizimaClient } from "../nizima/client.js";
 import {
   FACE_PARAM_PATTERN,
   resolveEmotion,
   applyEmotion,
   resetEmotion,
-} from "../core/emotion.js";
+} from "../perform/emotion.js";
 import { readDefaults, readDrift, resolveTarget, wait } from "./shared.js";
 
 const emotionName = process.argv[2] ?? "laugh";

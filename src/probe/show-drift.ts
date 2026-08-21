@@ -3,7 +3,7 @@
 //   npx tsx src/probe/show-drift.ts [モデル名]
 //
 // モーションや表情が動かしたまま残っている値を見るのに使う。
-import { NizimaClient } from "../core/nizima-client.js";
+import { NizimaClient } from "../nizima/client.js";
 import { readDefaults, readDrift, resolveTarget } from "./shared.js";
 
 const client = new NizimaClient();

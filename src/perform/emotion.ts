@@ -1,11 +1,11 @@
-import type { NizimaClient } from "./nizima-client.js";
+import type { NizimaClient } from "../nizima/client.js";
 import type {
   ExpressionInfo,
   GetCubismParametersResponse,
   GetExpressionsResponse,
   GetMotionsResponse,
   MotionInfo,
-} from "./nizima-types.js";
+} from "../nizima/types.js";
 
 /**
  * 発言の感情を、表情とモーションに割り当てる。
@@ -21,7 +21,7 @@ import type {
  */
 
 import { findByModelName, type EmotionLook } from "./models.js";
-import type { VoiceTuning } from "./voicevox.js";
+import type { VoiceTuning } from "../voice/voicevox.js";
 
 /**
  * どのモデルでも使う割り当て。

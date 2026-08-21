@@ -1,11 +1,11 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { query, type SDKUserMessage } from "@anthropic-ai/claude-agent-sdk";
-import { config } from "../core/config.js";
-import { performLine, prepareLine } from "../core/perform.js";
-import { buildFixPrompt, acceptFix } from "../core/verify-reading.js";
-import { TAKES_DIR } from "../core/takes.js";
-import { NizimaClient } from "../core/nizima-client.js";
+import { config } from "../config.js";
+import { performLine, prepareLine } from "../perform/perform.js";
+import { buildFixPrompt, acceptFix } from "../script/verify-reading.js";
+import { TAKES_DIR } from "../script/takes.js";
+import { NizimaClient } from "../nizima/client.js";
 import {
   resolveModelIds,
   faceFront,
@@ -13,20 +13,20 @@ import {
   warmUp,
   MOUTH_INTERVAL_MS,
   type PreparedSpeech,
-} from "../core/speak-core.js";
-import { MODELS, MODEL_NAMES } from "../core/models.js";
+} from "../perform/speak.js";
+import { MODELS, MODEL_NAMES } from "../perform/models.js";
 import {
   Subtitle,
   closeSubtitleRenderer,
   takeRenderElapsedMs,
   takePlaceElapsedMs,
-} from "../core/subtitle.js";
+} from "../stage/subtitle.js";
 import {
   EMOTION_NAMES,
   returnToIdle,
   extractEmotion,
   resetEmotion,
-} from "../core/emotion.js";
+} from "../perform/emotion.js";
 
 /**
  * お題を渡して、2 体のモデルに議論させる。

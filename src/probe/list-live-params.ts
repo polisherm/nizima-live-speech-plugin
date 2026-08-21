@@ -1,7 +1,7 @@
 // LiveParameter の一覧を表示する確認用スクリプト。
 // 口パクに使うパラメータの実 ID を確かめる。
-import { NizimaClient } from "../core/nizima-client.js";
-import type { GetLiveParametersResponse } from "../core/nizima-types.js";
+import { NizimaClient } from "../nizima/client.js";
+import type { GetLiveParametersResponse } from "../nizima/types.js";
 
 const client = new NizimaClient();
 await client.connect();

@@ -16,14 +16,14 @@
 // nizima の画面で手で動かせるので、位置と大きさは目で合わせられる。
 import path from "node:path";
 import { tmpdir } from "node:os";
-import { MODELS } from "./models.js";
-import type { NizimaClient } from "./nizima-client.js";
+import { MODELS } from "../perform/models.js";
+import type { NizimaClient } from "../nizima/client.js";
 import type {
   AddItemResponse,
   GetCurrentSceneIdResponse,
   GetItemsResponse,
   ItemInfo,
-} from "./nizima-types.js";
+} from "../nizima/types.js";
 import { renderImage } from "./subtitle.js";
 
 /**

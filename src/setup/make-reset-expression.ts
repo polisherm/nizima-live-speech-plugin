@@ -13,13 +13,13 @@
 // 表情として再生するため、戻り方にもフェードがかかる。
 import { writeFileSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
-import { NizimaClient } from "../core/nizima-client.js";
+import { NizimaClient } from "../nizima/client.js";
 import type {
   GetCubismParametersResponse,
   GetModelsResponse,
-} from "../core/nizima-types.js";
-import { resolveModelIds } from "../core/speak-core.js";
-import { RESET_EXPRESSION_NAME } from "../core/emotion.js";
+} from "../nizima/types.js";
+import { resolveModelIds } from "../perform/speak.js";
+import { RESET_EXPRESSION_NAME } from "../perform/emotion.js";
 
 /**
  * 戻す対象から外すパラメータ。

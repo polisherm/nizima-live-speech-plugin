@@ -4,12 +4,12 @@
 //
 // 現在のモデルと、その表情・モーションを並べる。
 // 感情に当てられる素材が揃っているかを見るのに使う。
-import { NizimaClient } from "../core/nizima-client.js";
+import { NizimaClient } from "../nizima/client.js";
 import type {
   GetCurrentModelIdResponse,
   GetExpressionsResponse,
   GetMotionsResponse,
-} from "../core/nizima-types.js";
+} from "../nizima/types.js";
 import { printModels } from "./shared.js";
 
 const client = new NizimaClient();

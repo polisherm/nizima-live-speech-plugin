@@ -3,13 +3,13 @@
 // どれも「モデルを 1 体決めて、値を読んで、既定と見比べる」形になる。
 // 同じ手順を各ファイルに書き写すと、測り方が少しずつ食い違う。
 
-import type { NizimaClient } from "../core/nizima-client.js";
+import type { NizimaClient } from "../nizima/client.js";
 import type {
   GetCubismParameterValuesResponse,
   GetCubismParametersResponse,
   GetCurrentModelIdResponse,
-} from "../core/nizima-types.js";
-import { resolveModelIds } from "../core/speak-core.js";
+} from "../nizima/types.js";
+import { resolveModelIds } from "../perform/speak.js";
 
 /** 対象に決めたモデル。表示にも使うので名前を添える。 */
 export interface TargetModel {

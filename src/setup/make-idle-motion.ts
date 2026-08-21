@@ -15,11 +15,11 @@
 // 口の開きだけは入れない。そこは口パクの持ち場で、モーションに触らせない。
 import fs from "node:fs";
 import path from "node:path";
-import { NizimaClient } from "../core/nizima-client.js";
+import { NizimaClient } from "../nizima/client.js";
 import type {
   GetCubismParametersResponse,
   GetModelsResponse,
-} from "../core/nizima-types.js";
+} from "../nizima/types.js";
 
 /** 口パクに任せる値。待機モーションからも外す。 */
 const MOUTH_OPEN = "ParamMouthOpenY";

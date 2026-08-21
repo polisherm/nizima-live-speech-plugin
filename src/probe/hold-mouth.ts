@@ -2,9 +2,9 @@
 // 口パクが見えないとき、値がモデルまで届いているかを切り分ける。
 //
 //   npx tsx src/probe/hold-mouth.ts [パラメータ Id] [値] [秒数] [モデル名]
-import { NizimaClient } from "../core/nizima-client.js";
-import type { GetLiveParameterValuesResponse } from "../core/nizima-types.js";
-import { MOUTH_INTERVAL_MS } from "../core/speak-core.js";
+import { NizimaClient } from "../nizima/client.js";
+import type { GetLiveParameterValuesResponse } from "../nizima/types.js";
+import { MOUTH_INTERVAL_MS } from "../perform/speak.js";
 import { resolveTarget, wait } from "./shared.js";
 
 const paramId = process.argv[2] ?? "MouthOpen";

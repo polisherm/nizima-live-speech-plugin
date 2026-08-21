@@ -130,14 +130,26 @@ npx tsx src/cli/add-model.ts "<model3.json のパス>"
 
 ```
 src/
-  core/    ほかから使われる部品。通信・台詞の読み解き・音声・字幕・表情
-  cli/     日常的に打つ入口
-  probe/   実測ツール。挙動を確かめるのに使う
-  setup/   モデルの加工。待機モーションと素の表情を作る
-scripts/   PowerShell と Python。字幕の描画とモデルの複製
-personas/  ペルソナ定義。会話の system prompt として読む
-takes/     台本の置き場。sample- で始まるものだけ記法の見本として残してある
+  config.ts  設定。どこからも引くので直下に置く
+  nizima/    nizima LIVE との通信と、返る形の型
+  voice/     音を作って鳴らす。VOICEVOX と PowerShell
+  script/    台詞の記法。読み解き・整形・読みの確認・台本
+  stage/     画面に出すもの。字幕とクレジット
+  perform/   演じる。モデルの定義・感情・喋らせる
+  cli/       日常的に打つ入口
+  probe/     実測ツール。挙動を確かめるのに使う
+  setup/     モデルの加工。待機モーションと素の表情を作る
+scripts/     PowerShell と Python。字幕の描画とモデルの複製
+personas/    ペルソナ定義。会話の system prompt として読む
+takes/       台本の置き場。sample- で始まるものだけ記法の見本として残してある
 ```
+
+`nizima` と `voice` は他のフォルダを知らない。`cli` と `probe` と `setup` は入口で、
+どこからも呼ばれない。
+
+残りは行き来がある。`perform` は字幕を出すために `stage` を呼び、
+`stage` はクレジットの文言を作るために `perform` のモデル定義を読む。
+`script` と `perform` の間も同じ形になっている。
 
 ### ペルソナ定義
 

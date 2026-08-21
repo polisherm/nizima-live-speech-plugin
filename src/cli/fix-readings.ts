@@ -9,9 +9,9 @@
 // 先読みが再生に間に合わなくなって切れ目で無音が伸びる。
 // 台本にしてからまとめて直せば、再生の速さに響かない。
 import { readFileSync, writeFileSync } from "node:fs";
-import { MODELS } from "../core/models.js";
-import { parseScriptLine } from "../core/takes.js";
-import { fixMisreadingsAll, type LineToCheck } from "../core/verify-reading.js";
+import { MODELS } from "../perform/models.js";
+import { parseScriptLine } from "../script/takes.js";
+import { fixMisreadingsAll, type LineToCheck } from "../script/verify-reading.js";
 
 const target = process.argv[2];
 if (!target) {

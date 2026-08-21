@@ -1,6 +1,6 @@
 import { writeFileSync } from "node:fs";
 
-import { config } from "./config.js";
+import { config } from "../config.js";
 
 // 待ち受け先と、間の取り方は config.ts が持つ。
 //

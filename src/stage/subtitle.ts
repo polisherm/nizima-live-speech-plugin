@@ -1,17 +1,17 @@
 import path from "node:path";
 import { tmpdir } from "node:os";
 import { rmSync } from "node:fs";
-import { REPO_ROOT } from "./config.js";
-import type { NizimaClient } from "./nizima-client.js";
+import { REPO_ROOT } from "../config.js";
+import type { NizimaClient } from "../nizima/client.js";
 import type {
   AddItemResponse,
   GetCurrentSceneIdResponse,
-} from "./nizima-types.js";
+} from "../nizima/types.js";
 import {
   stripSpacesAroundJapanese,
   stripRubyForSubtitle,
-} from "./format-speech.js";
-import { PwshWorker } from "./pwsh-worker.js";
+} from "../script/format-speech.js";
+import { PwshWorker } from "../voice/pwsh-worker.js";
 
 /**
  * 台詞を画像にして、nizima LIVE の画面上に字幕として置く。

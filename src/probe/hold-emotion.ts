@@ -4,8 +4,8 @@
 //
 // 議論の中では一瞬で切り替わるため、出ているかどうかを見落とす。
 // 止めて見せれば判定できる。
-import { NizimaClient } from "../core/nizima-client.js";
-import { applyEmotion, resetEmotion, returnToIdle } from "../core/emotion.js";
+import { NizimaClient } from "../nizima/client.js";
+import { applyEmotion, resetEmotion, returnToIdle } from "../perform/emotion.js";
 import { resolveTarget, wait } from "./shared.js";
 
 const emotion = process.argv[2] ?? "surprise";

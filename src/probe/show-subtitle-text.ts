@@ -3,13 +3,13 @@
 //   npx tsx src/probe/show-subtitle-text.ts "<台詞>"
 //
 // 画面で省略が起きたとき、渡した文字列そのものを確かめるのに使う。
-import { parseLine, splitParts, toSubtitle } from "../core/line-parser.js";
+import { parseLine, splitParts, toSubtitle } from "../script/line-parser.js";
 import {
   stripSpacesAroundJapanese,
   stripRubyForSubtitle,
-} from "../core/format-speech.js";
-import { EMOTIONS } from "../core/emotion.js";
-import { SUBTITLE_MAX_CHARS } from "../core/subtitle.js";
+} from "../script/format-speech.js";
+import { EMOTIONS } from "../perform/emotion.js";
+import { SUBTITLE_MAX_CHARS } from "../stage/subtitle.js";
 
 const raw = process.argv[2];
 const speaker = process.argv[3] ?? "めたん";

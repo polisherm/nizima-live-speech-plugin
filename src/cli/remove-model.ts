@@ -4,7 +4,7 @@
 //
 // 名前ではなく ModelId で指定する。
 // 同じ名前のモデルが並ぶことがあり、名前では狙ったほうを外せない。
-import { NizimaClient } from "../core/nizima-client.js";
+import { NizimaClient } from "../nizima/client.js";
 import { printModels } from "./shared.js";
 
 const modelId = process.argv[2];

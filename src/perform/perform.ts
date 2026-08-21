@@ -2,15 +2,15 @@
 //
 // 台詞をその場で作る流れ（discuss）と、書いてある台本を読む流れ（cast）で共有する。
 // どちらも見え方は同じにする。
-import type { NizimaClient } from "./nizima-client.js";
-import { speakOnModel, prepareSpeech, type PreparedSpeech } from "./speak-core.js";
+import type { NizimaClient } from "../nizima/client.js";
+import { Subtitle, SUBTITLE_MAX_CHARS } from "../stage/subtitle.js";
+import { speakOnModel, prepareSpeech, type PreparedSpeech } from "./speak.js";
 import {
   applyEmotion,
   applyExpressionOnly,
   extractEmotion,
   resolveEmotion,
 } from "./emotion.js";
-import { Subtitle, SUBTITLE_MAX_CHARS } from "./subtitle.js";
 import type { ModelDefinition } from "./models.js";
 
 export interface PerformOptions {

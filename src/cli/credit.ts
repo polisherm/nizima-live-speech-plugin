@@ -6,9 +6,9 @@
 // 内容は変わらないので、置いたままにする。
 // 位置と大きさは nizima の画面で手でも動かせる。動かした結果は保たれる。
 // シーンを保存すれば、次に開いたときも残る。
-import { NizimaClient } from "../core/nizima-client.js";
-import { showCredit, hideCredit } from "../core/credit.js";
-import { closeSubtitleRenderer } from "../core/subtitle.js";
+import { NizimaClient } from "../nizima/client.js";
+import { showCredit, hideCredit } from "../stage/credit.js";
+import { closeSubtitleRenderer } from "../stage/subtitle.js";
 
 const off = process.argv.includes("--off");
 

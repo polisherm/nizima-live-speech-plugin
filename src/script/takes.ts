@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import { REPO_ROOT } from "./config.js";
+import { REPO_ROOT } from "../config.js";
 
 /**
  * 台本の置き場。

@@ -4,9 +4,9 @@
 //
 // モーションを再生し、StopMotion を呼び、そのあとの姿勢を追う。
 // 値が段階的に戻ればフェードが効いている。一段で消えれば飛んで見える。
-import { NizimaClient } from "../core/nizima-client.js";
-import type { GetMotionsResponse } from "../core/nizima-types.js";
-import { resolveEmotion } from "../core/emotion.js";
+import { NizimaClient } from "../nizima/client.js";
+import type { GetMotionsResponse } from "../nizima/types.js";
+import { resolveEmotion } from "../perform/emotion.js";
 import { readDefaults, readDrift, resolveTarget, wait } from "./shared.js";
 
 const emotionName = process.argv[2] ?? "point";

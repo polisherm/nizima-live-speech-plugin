@@ -4,11 +4,11 @@
 //
 // 再生してから長めに追いかけ、パラメータのずれが消えていくかを追う。
 // 減っていけばフェードで戻っている。残り続けるなら止めるしかない。
-import { NizimaClient } from "../core/nizima-client.js";
+import { NizimaClient } from "../nizima/client.js";
 import type {
   GetCubismParameterValuesResponse,
   GetMotionsResponse,
-} from "../core/nizima-types.js";
+} from "../nizima/types.js";
 import { readDefaults, readDrift, resolveTarget, wait } from "./shared.js";
 
 const motionName = process.argv[2] ?? "mtnFace_surprise";

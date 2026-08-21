@@ -10,9 +10,9 @@
 // 感情を 1 つに絞り、その台詞に声が合うかだけを聞く。
 //
 // スタイルの一覧は VOICEVOX から取る。手で並べると、増えたときに古いまま残る。
-import { synthesize, listSpeakers } from "../core/voicevox.js";
-import { AudioPlayer } from "../core/audio-player.js";
-import { MODELS } from "../core/models.js";
+import { synthesize, listSpeakers } from "../voice/voicevox.js";
+import { AudioPlayer } from "../voice/audio-player.js";
+import { MODELS } from "../perform/models.js";
 import { EMOTION_LINES, EMOTION_LINE_NAMES } from "./emotion-lines.js";
 import { tmpdir } from "node:os";
 import path from "node:path";

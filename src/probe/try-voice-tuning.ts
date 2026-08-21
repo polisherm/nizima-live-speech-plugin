@@ -11,9 +11,9 @@
 // それを確かめるための道具。
 //
 // 一度に多くを判定しようとすると迷う。軸を 1 つに絞って聞く。
-import { synthesize, type VoiceTuning } from "../core/voicevox.js";
-import { AudioPlayer } from "../core/audio-player.js";
-import { MODELS } from "../core/models.js";
+import { synthesize, type VoiceTuning } from "../voice/voicevox.js";
+import { AudioPlayer } from "../voice/audio-player.js";
+import { MODELS } from "../perform/models.js";
 import { EMOTION_LINES, EMOTION_LINE_NAMES } from "./emotion-lines.js";
 import { tmpdir } from "node:os";
 import path from "node:path";

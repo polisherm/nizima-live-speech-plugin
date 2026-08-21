@@ -9,11 +9,11 @@
 //
 // 台本はまとめて 1 回で見せる。台詞ごとに問うと、そのたびに起動を待つ。
 import { query } from "@anthropic-ai/claude-agent-sdk";
-import { config } from "./config.js";
-import { audioQueryKana } from "./voicevox.js";
+import { config } from "../config.js";
+import { audioQueryKana } from "../voice/voicevox.js";
+import { EMOTIONS } from "../perform/emotion.js";
 import { finishReading } from "./format-speech.js";
 import { parseLine, toReading } from "./line-parser.js";
-import { EMOTIONS } from "./emotion.js";
 
 /** 読みの確認に使うモデル。差し替えは config.local.json の verifyModel で。 */
 const MODEL = config.verifyModel;

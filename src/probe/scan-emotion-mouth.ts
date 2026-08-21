@@ -7,13 +7,13 @@
 //   例: npx tsx src/probe/scan-emotion-mouth.ts zundamon shikoku_metan
 //
 // モデル名を省くと、画面に出ているモデルをすべて調べる。
-import { NizimaClient } from "../core/nizima-client.js";
+import { NizimaClient } from "../nizima/client.js";
 import type {
   GetCubismParameterValuesResponse,
   GetExpressionsResponse,
-} from "../core/nizima-types.js";
-import { EMOTION_NAMES, resolveEmotion, resetEmotion } from "../core/emotion.js";
-import { MOUTH_INTERVAL_MS, resolveModelIds } from "../core/speak-core.js";
+} from "../nizima/types.js";
+import { EMOTION_NAMES, resolveEmotion, resetEmotion } from "../perform/emotion.js";
+import { MOUTH_INTERVAL_MS, resolveModelIds } from "../perform/speak.js";
 import { wait } from "./shared.js";
 
 /** 表情が乗りきるまでの待ち時間。フェードインの途中で読むと値が中途半端になる。 */

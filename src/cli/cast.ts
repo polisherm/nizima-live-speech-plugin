@@ -1,18 +1,18 @@
 import { readFileSync } from "node:fs";
-import { config } from "../core/config.js";
-import { NizimaClient } from "../core/nizima-client.js";
+import { config } from "../config.js";
+import { NizimaClient } from "../nizima/client.js";
 import {
   resolveModelIds,
   closeAudioPlayer,
   faceFront,
   warmUp,
-} from "../core/speak-core.js";
-import { MODELS } from "../core/models.js";
-import { performLine, prepareLine } from "../core/perform.js";
-import type { PreparedSpeech } from "../core/speak-core.js";
-import { resetEmotion, returnToIdle } from "../core/emotion.js";
-import { Subtitle, closeSubtitleRenderer } from "../core/subtitle.js";
-import { parseScript, type ScriptLine } from "../core/takes.js";
+} from "../perform/speak.js";
+import { MODELS } from "../perform/models.js";
+import { performLine, prepareLine } from "../perform/perform.js";
+import type { PreparedSpeech } from "../perform/speak.js";
+import { resetEmotion, returnToIdle } from "../perform/emotion.js";
+import { Subtitle, closeSubtitleRenderer } from "../stage/subtitle.js";
+import { parseScript, type ScriptLine } from "../script/takes.js";
 import { readStdin } from "./shared.js";
 
 /** 字幕を出すか。SUBTITLE=0 を渡すと声だけになる。 */

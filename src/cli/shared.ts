@@ -3,8 +3,8 @@
 // 打つコマンドは目的ごとに分かれているが、前後の始末はどれも似る。
 // 同じ形を各ファイルに書き写すと、直すときに片方だけ残る。
 
-import type { NizimaClient } from "../core/nizima-client.js";
-import type { GetModelsResponse } from "../core/nizima-types.js";
+import type { NizimaClient } from "../nizima/client.js";
+import type { GetModelsResponse } from "../nizima/types.js";
 
 /**
  * 画面に出ているモデルを並べる。

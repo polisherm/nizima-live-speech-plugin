@@ -19,9 +19,9 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+// このファイルは src の直下にある。1 つ上がリポジトリの根。
 export const REPO_ROOT = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
-  "..",
   "..",
 );
 

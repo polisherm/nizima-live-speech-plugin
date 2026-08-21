@@ -5,8 +5,8 @@
 //
 // model3.json に足した表情は、nizima が読み直すまで一覧に出ない。
 // 読み直しは同じモデルへの ChangeModel で起こせる。
-import { NizimaClient } from "../core/nizima-client.js";
-import type { GetExpressionsResponse } from "../core/nizima-types.js";
+import { NizimaClient } from "../nizima/client.js";
+import type { GetExpressionsResponse } from "../nizima/types.js";
 import { resolveTarget } from "./shared.js";
 
 const filter = process.argv[3];

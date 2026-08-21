@@ -4,11 +4,11 @@
 //
 // アイテムは nizima の画面上で手でも動かせる。
 // 目で合わせた位置と大きさを、そのまま設定へ写すのに使う。
-import { NizimaClient } from "../core/nizima-client.js";
+import { NizimaClient } from "../nizima/client.js";
 import type {
   GetCurrentSceneIdResponse,
   GetItemsResponse,
-} from "../core/nizima-types.js";
+} from "../nizima/types.js";
 
 const client = new NizimaClient();
 await client.connect();

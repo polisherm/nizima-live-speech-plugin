@@ -1,7 +1,7 @@
-import { NizimaClient } from "../core/nizima-client.js";
-import type { GetCurrentModelIdResponse } from "../core/nizima-types.js";
-import { formatForSpeech } from "../core/format-speech.js";
-import { speakOnModel, closeAudioPlayer } from "../core/speak-core.js";
+import { NizimaClient } from "../nizima/client.js";
+import type { GetCurrentModelIdResponse } from "../nizima/types.js";
+import { formatForSpeech } from "../script/format-speech.js";
+import { speakOnModel, closeAudioPlayer } from "../perform/speak.js";
 import { readStdin } from "./shared.js";
 
 /**

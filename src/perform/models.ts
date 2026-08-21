@@ -8,8 +8,8 @@
 
 import path from "node:path";
 
-import { config } from "./config.js";
-import type { VoiceTuning } from "./voicevox.js";
+import { config } from "../config.js";
+import type { VoiceTuning } from "../voice/voicevox.js";
 
 /** 感情から引く、見た目と声。 */
 export interface EmotionLook {

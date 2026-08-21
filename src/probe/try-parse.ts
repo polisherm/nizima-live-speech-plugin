@@ -6,18 +6,18 @@
 // 表情の区間・読み上げの単位・字幕と音声のテキストを並べて出す。
 // nizima も VOICEVOX も要らない。
 //
-// 台詞を渡さないときは core/cases.ts を通す。
+// 台詞を渡さないときは script/cases.ts を通す。
 // 実際につまずいた形を集めてあるので、割り方を変えたあとの見比べに使える。
-import { CASES } from "../core/cases.js";
-import { EMOTIONS } from "../core/emotion.js";
+import { CASES } from "../script/cases.js";
+import { EMOTIONS } from "../perform/emotion.js";
 import {
   parseLine,
   splitParts,
   toSubtitle,
   toReading,
   toReadingWithPause,
-} from "../core/line-parser.js";
-import { finishReading } from "../core/format-speech.js";
+} from "../script/line-parser.js";
+import { finishReading } from "../script/format-speech.js";
 
 const MAX_CHARS = 44;
 

@@ -3,8 +3,8 @@
 //   npx tsx src/probe/play-motion.ts <モーション名> [モデル名]
 //
 // 乗り換えの挙動を確かめるのに使う。
-import { NizimaClient } from "../core/nizima-client.js";
-import type { GetMotionsResponse } from "../core/nizima-types.js";
+import { NizimaClient } from "../nizima/client.js";
+import type { GetMotionsResponse } from "../nizima/types.js";
 import { resolveTarget } from "./shared.js";
 
 const motionName = process.argv[2];

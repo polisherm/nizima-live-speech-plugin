@@ -6,9 +6,9 @@
 // 表情を出し、StopAllExpressions を呼び、そのあとの値を一定間隔で読む。
 // 既定値と違うものだけを出す。数が減っていけば FadeOutTime が効いている。
 // 一段で消えれば効いていない。
-import { NizimaClient } from "../core/nizima-client.js";
-import type { GetExpressionsResponse } from "../core/nizima-types.js";
-import { resolveEmotion, resetEmotion } from "../core/emotion.js";
+import { NizimaClient } from "../nizima/client.js";
+import type { GetExpressionsResponse } from "../nizima/types.js";
+import { resolveEmotion, resetEmotion } from "../perform/emotion.js";
 import { readDefaults, readDrift, resolveTarget, wait } from "./shared.js";
 
 const emotionName = process.argv[2] ?? "laugh";
