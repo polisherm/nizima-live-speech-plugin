@@ -7,8 +7,18 @@
 // 位置と大きさは nizima の画面で手でも動かせる。動かした結果は保たれる。
 // シーンを保存すれば、次に開いたときも残る。
 import { NizimaClient } from "../nizima/client.js";
+import { MODELS } from "../perform/models.js";
 import { showCredit, hideCredit } from "../stage/credit.js";
 import { closeSubtitleRenderer } from "../stage/subtitle.js";
+
+/**
+ * 出す文言。使う音源の名前を並べる。
+ *
+ * models.ts から引く。書き写すと、モデルを足したときに古いまま残る。
+ */
+const CREDIT_TEXT = `VOICEVOX: ${Object.values(MODELS)
+  .map((model) => model.voiceName)
+  .join("・")}`;
 
 const off = process.argv.includes("--off");
 
@@ -19,8 +29,8 @@ if (off) {
   const removed = await hideCredit(client);
   console.log(removed > 0 ? `消した（${removed} 件）` : "出ていなかった");
 } else {
-  const added = await showCredit(client);
-  console.log(added ? "置いた" : "すでに出ている");
+  const added = await showCredit(client, CREDIT_TEXT);
+  console.log(added ? `置いた: ${CREDIT_TEXT}` : "すでに出ている");
 }
 
 closeSubtitleRenderer();

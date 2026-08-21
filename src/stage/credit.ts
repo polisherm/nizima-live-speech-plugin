@@ -16,7 +16,6 @@
 // nizima の画面で手で動かせるので、位置と大きさは目で合わせられる。
 import path from "node:path";
 import { tmpdir } from "node:os";
-import { MODELS } from "../perform/models.js";
 import type { NizimaClient } from "../nizima/client.js";
 import type {
   AddItemResponse,
@@ -27,19 +26,17 @@ import type {
 import { renderImage } from "./subtitle.js";
 
 /**
- * 出す文言。
+ * 文言は呼ぶ側が渡す。
  *
  * 書き方の指定は「VOICEVOX を利用したことがわかる」だけで、形は決まっていない。
  * 音源の名前まで書く形が案内されているため、それに合わせる。
  *
- * 名前は models.ts から引く。書き写すと、モデルを足したときに古いまま残る。
+ * ここで組み立てない。誰が喋るかを知っているのは呼ぶ側で、
+ * ここが知りに行くと、画面へ出す側がモデルの定義を読むことになる。
  *
  * 区切りに / を使わない。字幕では折り返してよい位置の印にしてあり、
  * 描く側がそこで行を割ろうとする。
  */
-const CREDIT_TEXT = `VOICEVOX: ${Object.values(MODELS)
-  .map((model) => model.voiceName)
-  .join("・")}`;
 
 /** 描く大きさ。字幕より小さく、目立たせない。 */
 const FONT_SIZE = 48;
@@ -108,12 +105,15 @@ function findCredits(items: ItemInfo[]): ItemInfo[] {
  * 位置と大きさを送るのは、出した直後の 1 回だけにする。
  * 毎回送ると、手で動かした位置が元へ戻ってしまう。
  */
-export async function showCredit(client: NizimaClient): Promise<boolean> {
+export async function showCredit(
+  client: NizimaClient,
+  text: string,
+): Promise<boolean> {
   const sceneId = await currentSceneId(client);
   const already = findCredits(await listItems(client, sceneId));
   if (already.length > 0) return false;
 
-  await renderImage(CREDIT_TEXT, IMAGE_PATH, COLOR, {
+  await renderImage(text, IMAGE_PATH, COLOR, {
     fontSize: FONT_SIZE,
     width: IMAGE_WIDTH,
     maxLines: MAX_LINES,

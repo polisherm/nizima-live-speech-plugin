@@ -11,7 +11,6 @@
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import { config } from "../config.js";
 import { audioQueryKana } from "../voice/voicevox.js";
-import { EMOTIONS } from "../perform/emotion.js";
 import { finishReading } from "./format-speech.js";
 import { parseLine, toReading } from "./line-parser.js";
 
@@ -36,7 +35,7 @@ async function spokenKana(
   text: string,
   speakerId: number,
 ): Promise<string | null> {
-  const segments = parseLine(text, (name) => Boolean(EMOTIONS[name]));
+  const segments = parseLine(text);
   const spoken = finishReading(
     segments.map((s) => toReading(s.parts)).join(""),
   );

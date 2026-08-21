@@ -20,8 +20,9 @@ import type {
  * 名前が無いモデルでは、その感情を飛ばす。
  */
 
-import { findByModelName, type EmotionLook } from "./models.js";
+import { isEmotionName, type EmotionName } from "../script/emotions.js";
 import type { VoiceTuning } from "../voice/voicevox.js";
+import { findByModelName, type EmotionLook } from "./models.js";
 
 /**
  * どのモデルでも使う割り当て。
@@ -40,7 +41,7 @@ import type { VoiceTuning } from "../voice/voicevox.js";
  * 声で感情を出せるのは、いまのところ話者のスタイルを差し替える形だけ。
  * それも合うものが少なく、angry と shy に留まる（models.ts の looks を参照）。
  */
-export const EMOTIONS: Record<string, EmotionLook> = {
+export const EMOTIONS: Record<EmotionName, EmotionLook> = {
   neutral: { motion: "mtnFace_talk" },
   laugh: { expression: "exp_laugh", motion: "mtnBody_laugh" },
   smile: { expression: "exp_laugh2", motion: "mtnFace_talk" },
@@ -54,7 +55,6 @@ export const EMOTIONS: Record<string, EmotionLook> = {
   point: { motion: "mtnBody_point" },
 };
 
-export const EMOTION_NAMES = Object.keys(EMOTIONS);
 
 /**
  * モデルと感情から、出す見た目と声を引く。
@@ -66,7 +66,8 @@ export function resolveEmotion(
   modelName: string | undefined,
   emotion: string,
 ): EmotionLook | undefined {
-  const common = EMOTIONS[emotion];
+  // 知らない名前が来ることがある。台詞の綴り違いはここまで届く。
+  const common = isEmotionName(emotion) ? EMOTIONS[emotion] : undefined;
   if (!modelName) return common;
 
   const override = findByModelName(modelName)?.looks?.[emotion];
@@ -100,9 +101,8 @@ export function extractEmotion(raw: string): {
   text: string;
 } {
   const matched = raw.match(/^\s*[[［]\s*([a-zA-Z]+)\s*[\]］]\s*/);
-  const emotion = matched && EMOTIONS[matched[1].toLowerCase()]
-    ? matched[1].toLowerCase()
-    : "neutral";
+  const found = matched?.[1].toLowerCase();
+  const emotion = found && isEmotionName(found) ? found : "neutral";
 
   // 外すのは先頭のタグだけ。途中のタグは残す。
   // 表情を切り替える位置として splitIntoEmotionSegments が使う。
@@ -164,7 +164,7 @@ export function splitIntoEmotionSegments(
   while ((matched = pattern.exec(raw)) !== null) {
     push(raw.slice(cursor, matched.index), current);
     const name = matched[1].toLowerCase();
-    if (EMOTIONS[name]) current = name;
+    if (isEmotionName(name)) current = name;
     cursor = matched.index + matched[0].length;
   }
   push(raw.slice(cursor), current);

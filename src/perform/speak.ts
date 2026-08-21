@@ -18,10 +18,7 @@ import {
   toReadingWithPause,
   type Part,
 } from "../script/line-parser.js";
-import { EMOTIONS, resolveSpeakerId, resolveVoiceTuning } from "./emotion.js";
-
-/** 表情の名前として通すもの。台詞を読み解くときに使う。 */
-const isKnownEmotion = (name: string) => Boolean(EMOTIONS[name]);
+import { resolveSpeakerId, resolveVoiceTuning } from "./emotion.js";
 
 /**
  * 音を鳴らす常駐プロセス。
@@ -112,7 +109,7 @@ export function prepareSpeech(options: PrepareSpeechOptions): PreparedSpeech {
 
   const limit = maxChars ?? Number.MAX_SAFE_INTEGER;
   const sentences: Array<{ parts: Part[]; emotion: string }> = [];
-  for (const segment of parseLine(text, isKnownEmotion, emotion)) {
+  for (const segment of parseLine(text, emotion)) {
     for (const group of splitParts(segment.parts, limit)) {
       sentences.push({ parts: group, emotion: segment.emotion });
     }

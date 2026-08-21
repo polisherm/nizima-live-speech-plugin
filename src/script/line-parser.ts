@@ -14,6 +14,8 @@
 // 以降は文字列ではなく、意味の付いた部品として扱う。
 // 部品の境目でしか切らないので、記法が壊れることが起きない。
 
+import { isEmotionName } from "./emotions.js";
+
 /** 声に出す音と、画面に出す字が違う語。 */
 export interface RubyPart {
   kind: "ruby";
@@ -92,11 +94,14 @@ export type EmotionCheck = (name: string) => boolean;
  * 台詞を、表情の区間と部品の列に読み解く。
  *
  * 表情の指定が無いまま始まる台詞は、fallback の表情で始める。
+ *
+ * 通す名前は emotions.ts が決める。呼ぶ側はふつう指定しない。
+ * 差し替えられるようにしてあるのは、記法だけを試したいときのため。
  */
 export function parseLine(
   raw: string,
-  isEmotion: EmotionCheck,
   fallback = "neutral",
+  isEmotion: EmotionCheck = isEmotionName,
 ): Segment[] {
   const segments: Segment[] = [];
   let emotion = fallback;

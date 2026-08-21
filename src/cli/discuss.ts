@@ -21,8 +21,8 @@ import {
   takeRenderElapsedMs,
   takePlaceElapsedMs,
 } from "../stage/subtitle.js";
+import { EMOTION_NAMES } from "../script/emotions.js";
 import {
-  EMOTION_NAMES,
   returnToIdle,
   extractEmotion,
   resetEmotion,

@@ -12,7 +12,8 @@ import type {
   GetCubismParameterValuesResponse,
   GetExpressionsResponse,
 } from "../nizima/types.js";
-import { EMOTION_NAMES, resolveEmotion, resetEmotion } from "../perform/emotion.js";
+import { EMOTION_NAMES } from "../script/emotions.js";
+import { resolveEmotion, resetEmotion } from "../perform/emotion.js";
 import { MOUTH_INTERVAL_MS, resolveModelIds } from "../perform/speak.js";
 import { wait } from "./shared.js";
 

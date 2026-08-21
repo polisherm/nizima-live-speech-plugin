@@ -9,7 +9,6 @@
 // 台詞を渡さないときは script/cases.ts を通す。
 // 実際につまずいた形を集めてあるので、割り方を変えたあとの見比べに使える。
 import { CASES } from "../script/cases.js";
-import { EMOTIONS } from "../perform/emotion.js";
 import {
   parseLine,
   splitParts,
@@ -21,8 +20,6 @@ import { finishReading } from "../script/format-speech.js";
 
 const MAX_CHARS = 44;
 
-const isEmotion = (name: string) => Boolean(EMOTIONS[name]);
-
 const given = process.argv[2];
 const cases: Array<[string, string]> = given ? [["渡した台詞", given]] : CASES;
 
@@ -30,7 +27,7 @@ for (const [label, raw] of cases) {
   console.log(`\n########## ${label}`);
   console.log(`入力: ${raw}`);
 
-  const segments = parseLine(raw, isEmotion);
+  const segments = parseLine(raw);
 
   console.log(`--- 表情の区間`);
   for (const segment of segments) {
