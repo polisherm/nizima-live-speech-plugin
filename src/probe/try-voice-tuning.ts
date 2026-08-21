@@ -18,6 +18,10 @@ import { EMOTION_LINES, EMOTION_LINE_NAMES } from "./emotion-lines.js";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { rmSync } from "node:fs";
+import { wait } from "./shared.js";
+
+/** 聞き比べのあいだに置く間。続けて鳴らすと違いが分からない。 */
+const GAP_MS = 700;
 
 /**
  * 振る値。真ん中が既定になるように並べる。
@@ -110,8 +114,7 @@ for (const [index, [value, label]] of steps.entries()) {
   );
   await player.play(wavPath, () => {});
   rmSync(wavPath, { force: true });
-  // 続けて鳴らすと違いが分からない。少し置く。
-  await new Promise((resolve) => setTimeout(resolve, 700));
+  await wait(GAP_MS);
 }
 
 console.log("\n聞き終えた。番号で答えてもらえば割り当てに使う。");

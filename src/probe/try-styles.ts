@@ -8,76 +8,74 @@
 //
 // 一度に多くを判定しようとすると迷う。
 // 感情を 1 つに絞り、その台詞に声が合うかだけを聞く。
-import { synthesize } from "../core/voicevox.js";
+//
+// スタイルの一覧は VOICEVOX から取る。手で並べると、増えたときに古いまま残る。
+import { synthesize, listSpeakers } from "../core/voicevox.js";
 import { AudioPlayer } from "../core/audio-player.js";
-import { EMOTION_LINES } from "./emotion-lines.js";
+import { MODELS } from "../core/models.js";
+import { EMOTION_LINES, EMOTION_LINE_NAMES } from "./emotion-lines.js";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { rmSync } from "node:fs";
+import { wait } from "./shared.js";
 
-/** 聞き比べる相手。名前とスタイルの一覧を持つ。 */
-const CASTS: Record<string, Array<[number, string]>> = {
-  めたん: [
-    [2, "ノーマル"],
-    [0, "あまあま"],
-    [6, "ツンツン"],
-    [4, "セクシー"],
-    [36, "ささやき"],
-  ],
-  ずんだもん: [
-    [3, "ノーマル"],
-    [1, "あまあま"],
-    [7, "ツンツン"],
-    [5, "セクシー"],
-    [75, "ヘロヘロ"],
-    [76, "なみだめ"],
-  ],
-};
-
-/** 感情ごとの台詞。抑揚の聞き比べと同じものを使う。 */
-const LINES = EMOTION_LINES;
+/** 聞き比べのあいだに置く間。続けて鳴らすと違いが分からない。 */
+const GAP_MS = 700;
 
 const args = process.argv.slice(2);
 const useText = args[0] === "--text";
 const key = useText ? args[1] : (args[0] ?? "angry");
 const castName = (useText ? args[2] : args[1]) ?? "めたん";
-const styles = CASTS[castName];
 
-if (!styles) {
-  console.error(`知らない相手: ${castName}（${Object.keys(CASTS).join(" / ")}）`);
+const model = MODELS[castName];
+if (!model) {
+  console.error(
+    `知らない相手: ${castName}（${Object.keys(MODELS).join(" / ")}）`,
+  );
   process.exit(1);
 }
 
-const text = useText ? key : LINES[key]?.[castName];
+const text = useText ? key : EMOTION_LINES[key]?.[castName];
 if (!text) {
   console.error(
-    `知らない感情: ${key}（${Object.keys(LINES).join(" / ")}）\n` +
+    `知らない感情: ${key}（${EMOTION_LINE_NAMES.join(" / ")}）\n` +
       `好きな台詞で聞くなら --text "台詞" を渡す`,
   );
   process.exit(1);
 }
-if (!useText) console.log(`感情: ${key}`);
 
+// その音源が持つスタイルを引く。名前は models.ts の voiceName で照らす。
+const speakers = await listSpeakers();
+const speaker = speakers.find((s) => s.name === model.voiceName);
+if (!speaker) {
+  console.error(`VOICEVOX に音源が無い: ${model.voiceName}`);
+  console.error(`ある音源: ${speakers.map((s) => s.name).join(", ")}`);
+  process.exit(1);
+}
+const styles = speaker.styles;
+
+if (!useText) console.log(`感情: ${key}`);
 console.log(`台詞: ${text}`);
-console.log(`相手: ${castName}`);
+console.log(`相手: ${castName}（${model.voiceName}）`);
 console.log(`\nこれから ${styles.length} 通りを順に鳴らす。`);
-for (const [index, [id, name]] of styles.entries()) {
-  console.log(`  ${index + 1}. ${name}（${id}）`);
+for (const [index, style] of styles.entries()) {
+  console.log(`  ${index + 1}. ${style.name}（${style.id}）`);
 }
 console.log("");
 
 const player = new AudioPlayer();
 
-for (const [index, [id, name]] of styles.entries()) {
-  const wavPath = path.join(tmpdir(), `try-style-${process.pid}-${id}.wav`);
+for (const [index, style] of styles.entries()) {
+  const wavPath = path.join(tmpdir(), `try-style-${process.pid}-${style.id}.wav`);
   // 番号を声に含める。画面を見なくても、どれを聞いているか分かる。
   const spoken = `${index + 1}ばん。${text}`;
-  const result = await synthesize(spoken, id, wavPath);
-  console.log(`▶ ${index + 1}. ${name}  （${result.durationSec.toFixed(1)} 秒）`);
+  const result = await synthesize(spoken, style.id, wavPath);
+  console.log(
+    `▶ ${index + 1}. ${style.name}  （${result.durationSec.toFixed(1)} 秒）`,
+  );
   await player.play(wavPath, () => {});
   rmSync(wavPath, { force: true });
-  // 続けて鳴らすと違いが分からない。少し置く。
-  await new Promise((resolve) => setTimeout(resolve, 700));
+  await wait(GAP_MS);
 }
 
 console.log("\n聞き終えた。番号で答えてもらえば対応づけに使う。");

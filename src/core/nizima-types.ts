@@ -124,3 +124,8 @@ export interface AddItemResponse {
 export interface AddModelResponse {
   ModelId: string;
 }
+
+/** プラグインを登録したときに返る鍵。次からはこれで繋ぐ。 */
+export interface RegisterPluginResponse {
+  Token: string;
+}

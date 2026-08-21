@@ -7,8 +7,13 @@
 //
 // 0 に近ければ口パクが通る。大きいほどモーションが口を握っている。
 import { NizimaClient } from "../core/nizima-client.js";
+import type {
+  GetCubismParameterValuesResponse,
+  GetMotionsResponse,
+} from "../core/nizima-types.js";
 import { EMOTION_NAMES, resolveEmotion, resetEmotion } from "../core/emotion.js";
 import { resolveModelIds } from "../core/speak-core.js";
+import { wait } from "./shared.js";
 
 /** 1 つのモーションを見る回数と間隔。動きの山を捉えるだけの長さを取る。 */
 const SAMPLES = 12;
@@ -38,11 +43,11 @@ for (const [name, modelId] of targets) {
 
     await client.request("StopMotion", { ModelId: modelId }).catch(() => {});
     await resetEmotion(client, modelId);
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    await wait(400);
 
-    const motions = (await client.request("GetMotions", {
+    const motions = await client.request<GetMotionsResponse>("GetMotions", {
       ModelId: modelId,
-    })) as { Motions: Array<{ Name?: string; MotionPath?: string }> };
+    });
     const found = motions.Motions.find((m) => m.Name === mapping.motion);
     if (!found?.MotionPath) {
       console.log(`${emotion.padEnd(10)}  ${mapping.motion.padEnd(18)}  （無い）`);
@@ -63,11 +68,12 @@ for (const [name, modelId] of targets) {
           LiveParameterValues: [{ Id: "MouthOpen", Value: 0 }],
         })
         .catch(() => {});
-      await new Promise((resolve) => setTimeout(resolve, SAMPLE_INTERVAL_MS));
+      await wait(SAMPLE_INTERVAL_MS);
 
-      const values = (await client.request("GetCubismParameterValues", {
-        ModelId: modelId,
-      })) as { CubismParameterValues?: Array<{ Id: string; Value: number }> };
+      const values = await client.request<GetCubismParameterValuesResponse>(
+        "GetCubismParameterValues",
+        { ModelId: modelId },
+      );
       const openY = (values.CubismParameterValues ?? []).find(
         (p) => p.Id === "ParamMouthOpenY",
       );

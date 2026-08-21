@@ -5,42 +5,20 @@
 //
 // 絞り込みは Id への部分一致。省くと全件出す。
 import { NizimaClient } from "../core/nizima-client.js";
-import { resolveModelIds } from "../core/speak-core.js";
+import type { GetCubismParametersResponse } from "../core/nizima-types.js";
+import { resolveTarget } from "./shared.js";
 
-const modelName = process.argv[2];
 const filter = process.argv[3];
 
 const client = new NizimaClient();
 await client.connect();
 
-let modelId: string;
-if (modelName) {
-  const ids = await resolveModelIds(client);
-  const found = ids.get(modelName);
-  if (!found) {
-    console.error(`モデルが見つからない: ${modelName}`);
-    console.error(`画面上のモデル: ${[...ids.keys()].join(", ")}`);
-    process.exit(1);
-  }
-  modelId = found;
-} else {
-  const current = (await client.request("GetCurrentModelId")) as {
-    ModelId: string;
-  };
-  modelId = current.ModelId;
-}
+const target = await resolveTarget(client, process.argv[2]);
 
-const defs = (await client.request("GetCubismParameters", {
-  ModelId: modelId,
-})) as {
-  CubismParameters?: Array<{
-    Id: string;
-    Name?: string;
-    DefaultValue: number;
-    Min: number;
-    Max: number;
-  }>;
-};
+const defs = await client.request<GetCubismParametersResponse>(
+  "GetCubismParameters",
+  { ModelId: target.modelId },
+);
 
 const params = (defs.CubismParameters ?? []).filter((p) =>
   filter ? p.Id.toLowerCase().includes(filter.toLowerCase()) : true,

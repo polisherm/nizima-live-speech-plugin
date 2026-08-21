@@ -6,28 +6,23 @@
 // 止めて見せれば判定できる。
 import { NizimaClient } from "../core/nizima-client.js";
 import { applyEmotion, resetEmotion, returnToIdle } from "../core/emotion.js";
-import { resolveModelIds } from "../core/speak-core.js";
+import { resolveTarget, wait } from "./shared.js";
 
 const emotion = process.argv[2] ?? "surprise";
-const modelName = process.argv[3] ?? "zundamon_talk";
 const seconds = Number(process.argv[4] ?? 5);
 
 const client = new NizimaClient();
 await client.connect();
 
-const modelId = (await resolveModelIds(client)).get(modelName);
-if (!modelId) {
-  console.error(`モデルが見つからない: ${modelName}`);
-  process.exit(1);
-}
+const target = await resolveTarget(client, process.argv[3]);
 
-await applyEmotion(client, modelId, emotion, modelName);
-console.log(`${modelName} を ${emotion} にした。${seconds} 秒このまま。`);
+await applyEmotion(client, target.modelId, emotion, target.name);
+console.log(`${target.name} を ${emotion} にした。${seconds} 秒このまま。`);
 
-await new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+await wait(seconds * 1000);
 
-await returnToIdle(client, modelId);
-await resetEmotion(client, modelId);
+await returnToIdle(client, target.modelId);
+await resetEmotion(client, target.modelId);
 console.log("素へ戻した。");
 
 client.close();

@@ -4,10 +4,10 @@
 //
 // 乗り換えの挙動を確かめるのに使う。
 import { NizimaClient } from "../core/nizima-client.js";
-import { resolveModelIds } from "../core/speak-core.js";
+import type { GetMotionsResponse } from "../core/nizima-types.js";
+import { resolveTarget } from "./shared.js";
 
 const motionName = process.argv[2];
-const modelName = process.argv[3] ?? "zundamon_talk";
 
 if (!motionName) {
   console.error("モーション名を渡す");
@@ -17,15 +17,11 @@ if (!motionName) {
 const client = new NizimaClient();
 await client.connect();
 
-const modelId = (await resolveModelIds(client)).get(modelName);
-if (!modelId) {
-  console.error(`モデルが見つからない: ${modelName}`);
-  process.exit(1);
-}
+const target = await resolveTarget(client, process.argv[3]);
 
-const motions = (await client.request("GetMotions", { ModelId: modelId })) as {
-  Motions: Array<{ Name?: string; MotionPath?: string }>;
-};
+const motions = await client.request<GetMotionsResponse>("GetMotions", {
+  ModelId: target.modelId,
+});
 const found = motions.Motions.find((m) => m.Name === motionName);
 if (!found?.MotionPath) {
   console.error(`モーションが見つからない: ${motionName}`);
@@ -34,9 +30,9 @@ if (!found?.MotionPath) {
 }
 
 await client.request("StartMotion", {
-  ModelId: modelId,
+  ModelId: target.modelId,
   MotionPath: found.MotionPath,
 });
-console.log(`再生: ${modelName} / ${motionName}`);
+console.log(`再生: ${target.name} / ${motionName}`);
 
 client.close();

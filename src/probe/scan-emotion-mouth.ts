@@ -8,15 +8,19 @@
 //
 // モデル名を省くと、画面に出ているモデルをすべて調べる。
 import { NizimaClient } from "../core/nizima-client.js";
+import type {
+  GetCubismParameterValuesResponse,
+  GetExpressionsResponse,
+} from "../core/nizima-types.js";
 import { EMOTION_NAMES, resolveEmotion, resetEmotion } from "../core/emotion.js";
-import { resolveModelIds } from "../core/speak-core.js";
+import { MOUTH_INTERVAL_MS, resolveModelIds } from "../core/speak-core.js";
+import { wait } from "./shared.js";
 
 /** 表情が乗りきるまでの待ち時間。フェードインの途中で読むと値が中途半端になる。 */
 const SETTLE_MS = 1500;
 
 /** 口パクと同じ経路で送る回数。実際のループと条件を揃える。 */
 const MOUTH_SENDS = 8;
-const MOUTH_INTERVAL_MS = 120;
 
 const client = new NizimaClient();
 await client.connect();
@@ -40,13 +44,14 @@ for (const [name, modelId] of targets) {
     const mapping = resolveEmotion(name, emotion);
 
     await resetEmotion(client, modelId);
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    await wait(400);
 
     let expressionLabel = "(なし)";
     if (mapping?.expression) {
-      const expressions = (await client.request("GetExpressions", {
-        ModelId: modelId,
-      })) as { Expressions: Array<{ Name: string; ExpressionPath: string }> };
+      const expressions = await client.request<GetExpressionsResponse>(
+        "GetExpressions",
+        { ModelId: modelId },
+      );
       const found = expressions.Expressions.find(
         (e) => e.Name === mapping.expression,
       );
@@ -61,7 +66,7 @@ for (const [name, modelId] of targets) {
       }
     }
 
-    await new Promise((resolve) => setTimeout(resolve, SETTLE_MS));
+    await wait(SETTLE_MS);
 
     // 口を閉じろと送り続ける。表情が握っていなければ 0 に落ちる。
     for (let i = 0; i < MOUTH_SENDS; i++) {
@@ -72,12 +77,13 @@ for (const [name, modelId] of targets) {
           LiveParameterValues: [{ Id: "MouthOpen", Value: 0 }],
         })
         .catch(() => {});
-      await new Promise((resolve) => setTimeout(resolve, MOUTH_INTERVAL_MS));
+      await wait(MOUTH_INTERVAL_MS);
     }
 
-    const values = (await client.request("GetCubismParameterValues", {
-      ModelId: modelId,
-    })) as { CubismParameterValues?: Array<{ Id: string; Value: number }> };
+    const values = await client.request<GetCubismParameterValuesResponse>(
+      "GetCubismParameterValues",
+      { ModelId: modelId },
+    );
     const openY = (values.CubismParameterValues ?? []).find(
       (p) => p.Id === "ParamMouthOpenY",
     );

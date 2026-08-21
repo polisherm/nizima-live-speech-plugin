@@ -18,14 +18,21 @@
 //   live:<Id>       任意の LiveParameter へ送る（例 live:LipSyncMouthOpen）
 //   cubism:<Id>     任意の CubismParameter へ送る
 import { NizimaClient } from "../core/nizima-client.js";
+import type {
+  GetCubismParameterValuesResponse,
+  GetExpressionsResponse,
+  GetMotionsResponse,
+} from "../core/nizima-types.js";
 import { resolveEmotion, resetEmotion } from "../core/emotion.js";
-import { resolveModelIds } from "../core/speak-core.js";
+import { MOUTH_INTERVAL_MS } from "../core/speak-core.js";
+import { resolveTarget, wait } from "./shared.js";
 
 type Mode = "none" | "expression" | "motion" | "both";
 
+const MODES: Mode[] = ["none", "expression", "motion", "both"];
+
 const emotionName = process.argv[2] ?? "surprise";
 const mode = (process.argv[3] ?? "both") as Mode;
-const modelName = process.argv[4];
 const seconds = Number.parseFloat(process.argv[5] ?? "6");
 const mouthValue = Number.parseFloat(process.argv[6] ?? "1");
 // 送り先の指定を「経路」と「パラメータ Id」に分ける。
@@ -34,62 +41,42 @@ const [channel, explicitId] = channelArg.split(":");
 const paramId =
   explicitId ?? (channel === "cubism" ? "ParamMouthOpenY" : "MouthOpen");
 
-if (!["none", "expression", "motion", "both"].includes(mode)) {
-  console.error(`不明なモード: ${mode}`);
+if (!MODES.includes(mode)) {
+  console.error(`不明なモード: ${mode}（${MODES.join(" / ")}）`);
   process.exit(1);
 }
 
 const client = new NizimaClient();
 await client.connect();
 
-// モデルの解決。名前を省いたら現在選択中のものを使う。
-let modelId: string;
-let resolvedName = modelName ?? "(current)";
-if (modelName) {
-  const ids = await resolveModelIds(client);
-  const found = ids.get(modelName);
-  if (!found) {
-    console.error(`モデルが見つからない: ${modelName}`);
-    console.error(`画面上のモデル: ${[...ids.keys()].join(", ")}`);
-    process.exit(1);
-  }
-  modelId = found;
-} else {
-  const current = (await client.request("GetCurrentModelId")) as {
-    ModelId: string;
-  };
-  modelId = current.ModelId;
-  const ids = await resolveModelIds(client);
-  for (const [name, id] of ids) {
-    if (id === modelId) resolvedName = name;
-  }
-}
+const target = await resolveTarget(client, process.argv[4]);
 
-console.log(`対象モデル: ${resolvedName} (${modelId})`);
+console.log(`対象モデル: ${target.name} (${target.modelId})`);
 console.log(
   `感情: ${emotionName} / モード: ${mode} / ${seconds} 秒 / 値=${mouthValue} / 送り先=${channel}:${paramId}`,
 );
 
 // 前の表情を持ち越さない。
-await resetEmotion(client, modelId);
-await new Promise((resolve) => setTimeout(resolve, 300));
+await resetEmotion(client, target.modelId);
+await wait(300);
 
-const mapping = resolveEmotion(resolvedName, emotionName);
+const mapping = resolveEmotion(target.name, emotionName);
 if (!mapping && mode !== "none") {
   console.error(`感情の割り当てが無い: ${emotionName}`);
   process.exit(1);
 }
 
 if ((mode === "expression" || mode === "both") && mapping?.expression) {
-  const expressions = (await client.request("GetExpressions", {
-    ModelId: modelId,
-  })) as { Expressions: Array<{ Name: string; ExpressionPath: string }> };
+  const expressions = await client.request<GetExpressionsResponse>(
+    "GetExpressions",
+    { ModelId: target.modelId },
+  );
   const found = expressions.Expressions.find(
     (e) => e.Name === mapping.expression,
   );
   if (found) {
     await client.request("StartExpression", {
-      ModelId: modelId,
+      ModelId: target.modelId,
       ExpressionPath: found.ExpressionPath,
     });
     console.log(`表情を再生: ${mapping.expression}`);
@@ -99,13 +86,13 @@ if ((mode === "expression" || mode === "both") && mapping?.expression) {
 }
 
 if ((mode === "motion" || mode === "both") && mapping?.motion) {
-  const motions = (await client.request("GetMotions", {
-    ModelId: modelId,
-  })) as { Motions: Array<{ Name?: string; MotionPath?: string }> };
+  const motions = await client.request<GetMotionsResponse>("GetMotions", {
+    ModelId: target.modelId,
+  });
   const found = motions.Motions.find((m) => m.Name === mapping.motion);
   if (found?.MotionPath) {
     await client.request("StartMotion", {
-      ModelId: modelId,
+      ModelId: target.modelId,
       MotionPath: found.MotionPath,
     });
     console.log(`モーションを再生: ${mapping.motion}`);
@@ -114,20 +101,18 @@ if ((mode === "motion" || mode === "both") && mapping?.motion) {
   }
 }
 
-// 口パクと同じ経路・同じ間隔で MouthOpen を送り続ける。
-// speak-core.ts の口パクループと条件を揃える。
-const MOUTH_INTERVAL_MS = 120;
+// 口パクと同じ経路・同じ間隔で送り続ける。本番のループと条件を揃える。
 let sent = 0;
 let failed = 0;
 const timer = setInterval(() => {
   const sending =
     channel === "cubism"
       ? client.request("SetCubismParameterValues", {
-          ModelId: modelId,
+          ModelId: target.modelId,
           CubismParameterValues: [{ Id: paramId, Value: mouthValue }],
         })
       : client.request("SetLiveParameterValues", {
-          ModelId: modelId,
+          ModelId: target.modelId,
           Overwrite: true,
           LiveParameterValues: [{ Id: paramId, Value: mouthValue }],
         });
@@ -145,35 +130,31 @@ const timer = setInterval(() => {
     });
 }, MOUTH_INTERVAL_MS);
 
-// 維持している最中に、モデル側の口のパラメータを覗けるか試す。
-// この API があるかは未確認。あれば画面を見なくても競合を数値で判定できる。
-await new Promise((resolve) => setTimeout(resolve, 2000));
-try {
-  const values = (await client.request("GetCubismParameterValues", {
-    ModelId: modelId,
-  })) as { CubismParameterValues?: Array<{ Id: string; Value: number }> };
-  const mouth = (values.CubismParameterValues ?? []).filter((p) =>
-    /Mouth/i.test(p.Id),
-  );
-  console.log(`GetCubismParameterValues は使えた。口のパラメータ:`);
-  for (const p of mouth) console.log(`  ${p.Id} = ${p.Value}`);
-} catch (error) {
-  console.log(
-    `GetCubismParameterValues は使えない: ${error instanceof Error ? error.message : String(error)}`,
-  );
-}
+// 送っている最中に、モデル側の口がどうなっているかを覗く。
+const PEEK_AT_MS = 2000;
+await wait(PEEK_AT_MS);
 
-await new Promise((resolve) => setTimeout(resolve, seconds * 1000 - 2000));
+const values = await client.request<GetCubismParameterValuesResponse>(
+  "GetCubismParameterValues",
+  { ModelId: target.modelId },
+);
+const mouth = (values.CubismParameterValues ?? []).filter((p) =>
+  /Mouth/i.test(p.Id),
+);
+console.log(`\n口のパラメータ:`);
+for (const p of mouth) console.log(`  ${p.Id} = ${p.Value}`);
+
+await wait(seconds * 1000 - PEEK_AT_MS);
 clearInterval(timer);
 
-console.log(`送信 ${sent} 件 / 失敗 ${failed} 件`);
+console.log(`\n送信 ${sent} 件 / 失敗 ${failed} 件`);
 
 await client
   .request("SetLiveParameterValues", {
-    ModelId: modelId,
+    ModelId: target.modelId,
     LiveParameterValues: [{ Id: "MouthOpen", Value: 0 }],
   })
   .catch(() => {});
-await resetEmotion(client, modelId);
+await resetEmotion(client, target.modelId);
 
 client.close();

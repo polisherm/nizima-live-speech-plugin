@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import path from "node:path";
 
 import { config, REPO_ROOT } from "./config.js";
+import type { RegisterPluginResponse } from "./nizima-types.js";
 
 const PLUGIN_NAME = "nizima-agent-bridge";
 const PLUGIN_VERSION = "0.1.0";
@@ -71,11 +72,14 @@ export class NizimaClient {
       }
     }
 
-    const response = (await this.request("RegisterPlugin", {
-      Name: PLUGIN_NAME,
-      Developer: config.pluginDeveloper,
-      Version: PLUGIN_VERSION,
-    })) as { Token: string };
+    const response = await this.request<RegisterPluginResponse>(
+      "RegisterPlugin",
+      {
+        Name: PLUGIN_NAME,
+        Developer: config.pluginDeveloper,
+        Version: PLUGIN_VERSION,
+      },
+    );
     saveToken(response.Token);
   }
 

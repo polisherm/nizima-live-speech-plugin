@@ -10,32 +10,27 @@
 // 食い違えば、何かが上書きしている。いつ食い違うかが手がかりになる。
 // 身振りの再生中と再生後で通り方が変わるかも、時間の並びから読める。
 import { NizimaClient } from "../core/nizima-client.js";
+import type { GetCubismParameterValuesResponse } from "../core/nizima-types.js";
 import { applyEmotion, resetEmotion } from "../core/emotion.js";
-import { resolveModelIds } from "../core/speak-core.js";
+import { MOUTH_INTERVAL_MS, mouthOpenAt } from "../core/speak-core.js";
+import { resolveTarget, wait } from "./shared.js";
 
 const emotionName = process.argv[2] ?? "angry";
-const modelName = process.argv[3] ?? "zundamon_talk";
 const seconds = Number.parseFloat(process.argv[4] ?? "10");
-
-/** 口パクの送信間隔。speak-core.ts と揃える。 */
-const MOUTH_INTERVAL_MS = 120;
 
 const client = new NizimaClient();
 await client.connect();
 
-const ids = await resolveModelIds(client);
-const modelId = ids.get(modelName);
-if (!modelId) {
-  console.error(`モデルが見つからない: ${modelName}`);
-  console.error(`画面上のモデル: ${[...ids.keys()].join(", ")}`);
-  process.exit(1);
-}
+const { modelId, name: modelName } = await resolveTarget(
+  client,
+  process.argv[3],
+);
 
 console.log(`対象: ${modelName} (${modelId}) / 感情: ${emotionName}`);
 
 // 前の表情を持ち越さない。
 await resetEmotion(client, modelId);
-await new Promise((resolve) => setTimeout(resolve, 300));
+await wait(300);
 
 // 本番と同じ道で表情と身振りを出す。
 await applyEmotion(client, modelId, emotionName, modelName);
@@ -49,9 +44,8 @@ while (!stop) {
   const elapsed = (Date.now() - startedAt) / 1000;
   if (elapsed >= seconds) break;
 
-  // speak-core.ts の口パクと同じ式にする。
-  const base = Math.abs(Math.sin(elapsed * Math.PI * 3.5));
-  const value = 0.15 + base * 0.65;
+  // 本番と同じ式で送る。書き写すと、片方を直したときに揃わなくなる。
+  const value = mouthOpenAt(elapsed);
 
   await client
     .request("SetLiveParameterValues", {
@@ -61,11 +55,11 @@ while (!stop) {
     })
     .catch(() => {});
 
-  const values = (await client
-    .request("GetCubismParameterValues", { ModelId: modelId })
-    .catch(() => null)) as {
-    CubismParameterValues?: Array<{ Id: string; Value: number }>;
-  } | null;
+  const values = await client
+    .request<GetCubismParameterValuesResponse>("GetCubismParameterValues", {
+      ModelId: modelId,
+    })
+    .catch(() => null);
   const actual = (values?.CubismParameterValues ?? []).find(
     (p) => p.Id === "ParamMouthOpenY",
   )?.Value;
@@ -76,7 +70,7 @@ while (!stop) {
       `  ${shown.toFixed(3).padStart(8)}  ${(shown - value).toFixed(3).padStart(7)}`,
   );
 
-  await new Promise((resolve) => setTimeout(resolve, MOUTH_INTERVAL_MS));
+  await wait(MOUTH_INTERVAL_MS);
 }
 
 await client

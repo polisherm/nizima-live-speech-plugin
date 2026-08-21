@@ -5,73 +5,64 @@
 // 再生してから長めに追いかけ、パラメータのずれが消えていくかを追う。
 // 減っていけばフェードで戻っている。残り続けるなら止めるしかない。
 import { NizimaClient } from "../core/nizima-client.js";
-import { resolveModelIds } from "../core/speak-core.js";
+import type {
+  GetCubismParameterValuesResponse,
+  GetMotionsResponse,
+} from "../core/nizima-types.js";
+import { readDefaults, readDrift, resolveTarget, wait } from "./shared.js";
 
 const motionName = process.argv[2] ?? "mtnFace_surprise";
-const modelName = process.argv[3] ?? "zundamon_talk";
 
 /** 再生してから読む時刻（ミリ秒）。モーションの長さを跨いで追う。 */
 const SAMPLE_AT_MS = [500, 1500, 2500, 3500, 4000, 4500, 5000, 6000, 7000];
 
+/** 目の形。数だけでは見えない切り替わりを、この 1 つで追う。 */
+const EYE_TYPE = "ParamEyeType2";
+
 const client = new NizimaClient();
 await client.connect();
 
-const ids = await resolveModelIds(client);
-const modelId = ids.get(modelName);
-if (!modelId) {
-  console.error(`モデルが見つからない: ${modelName}`);
-  process.exit(1);
-}
+const target = await resolveTarget(client, process.argv[3]);
+const defaults = await readDefaults(client, target.modelId);
 
-const defs = (await client.request("GetCubismParameters", {
-  ModelId: modelId,
-})) as { CubismParameters?: Array<{ Id: string; DefaultValue: number }> };
-const defaults = new Map(
-  (defs.CubismParameters ?? []).map((p) => [p.Id, p.DefaultValue]),
-);
-
-const read = async () => {
-  const values = (await client.request("GetCubismParameterValues", {
-    ModelId: modelId,
-  })) as { CubismParameterValues?: Array<{ Id: string; Value: number }> };
-  let count = 0;
-  let total = 0;
-  let eyeType = 0;
-  for (const p of values.CubismParameterValues ?? []) {
-    if (p.Id === "ParamEyeType2") eyeType = p.Value;
-    const base = defaults.get(p.Id);
-    if (base === undefined) continue;
-    const diff = Math.abs(p.Value - base);
-    if (diff > 0.01) {
-      count += 1;
-      total += diff;
-    }
-  }
-  return { count, total, eyeType };
+/** 目の形のいまの値。ずれの数には出ない切り替わりを見る。 */
+const readEyeType = async (): Promise<number> => {
+  const values = await client
+    .request<GetCubismParameterValuesResponse>("GetCubismParameterValues", {
+      ModelId: target.modelId,
+    })
+    .catch(() => null);
+  return (
+    (values?.CubismParameterValues ?? []).find((p) => p.Id === EYE_TYPE)
+      ?.Value ?? 0
+  );
 };
 
-const motions = (await client.request("GetMotions", { ModelId: modelId })) as {
-  Motions: Array<{ Name?: string; MotionPath?: string }>;
-};
+const motions = await client.request<GetMotionsResponse>("GetMotions", {
+  ModelId: target.modelId,
+});
 const found = motions.Motions.find((m) => m.Name === motionName);
 if (!found?.MotionPath) {
   console.error(`モーションが見つからない: ${motionName}`);
   process.exit(1);
 }
 
-console.log(`対象: ${modelName} / ${motionName}`);
+console.log(`対象: ${target.name} / ${motionName}`);
 await client.request("StartMotion", {
-  ModelId: modelId,
+  ModelId: target.modelId,
   MotionPath: found.MotionPath,
 });
 
 let previous = 0;
 for (const at of SAMPLE_AT_MS) {
-  await new Promise((resolve) => setTimeout(resolve, at - previous));
+  await wait(at - previous);
   previous = at;
-  const s = await read();
+  const drift = await readDrift(client, target.modelId, defaults);
+  const eyeType = await readEyeType();
   console.log(
-    `  ${String(at).padStart(5)}ms  ${String(s.count).padStart(3)} 件 / ずれ ${s.total.toFixed(2).padStart(7)} / 目の種類 ${s.eyeType.toFixed(2)}`,
+    `  ${String(at).padStart(5)}ms  ${String(drift.count).padStart(3)} 件` +
+      ` / ずれ ${drift.total.toFixed(2).padStart(7)}` +
+      ` / 目の種類 ${eyeType.toFixed(2)}`,
   );
 }
 

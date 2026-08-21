@@ -16,6 +16,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { NizimaClient } from "../core/nizima-client.js";
+import type {
+  GetCubismParametersResponse,
+  GetModelsResponse,
+} from "../core/nizima-types.js";
 
 /** 口パクに任せる値。待機モーションからも外す。 */
 const MOUTH_OPEN = "ParamMouthOpenY";
@@ -41,9 +45,7 @@ const FADE_SEC = 0.5;
 const client = new NizimaClient();
 await client.connect();
 
-const models = (await client.request("GetModels")) as {
-  Models: Array<{ ModelId: string; Name?: string; ModelPath?: string }>;
-};
+const models = await client.request<GetModelsResponse>("GetModels");
 
 // 対象は必ず名前で指定させる。
 //
@@ -91,9 +93,10 @@ for (const model of models.Models) {
   console.log(`  モーション ${scanned} 件から ${targets.size} 個の値を集めた`);
 
   // 既定値を引く。moc3 の中にあるため、nizima から取る。
-  const defs = (await client.request("GetCubismParameters", {
-    ModelId: model.ModelId,
-  })) as { CubismParameters?: Array<{ Id: string; DefaultValue: number }> };
+  const defs = await client.request<GetCubismParametersResponse>(
+    "GetCubismParameters",
+    { ModelId: model.ModelId },
+  );
   const defaults = new Map(
     (defs.CubismParameters ?? []).map((p) => [p.Id, p.DefaultValue]),
   );

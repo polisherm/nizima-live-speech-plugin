@@ -6,40 +6,26 @@
 // model3.json に足した表情は、nizima が読み直すまで一覧に出ない。
 // 読み直しは同じモデルへの ChangeModel で起こせる。
 import { NizimaClient } from "../core/nizima-client.js";
-import { resolveModelIds } from "../core/speak-core.js";
+import type { GetExpressionsResponse } from "../core/nizima-types.js";
+import { resolveTarget } from "./shared.js";
 
-const modelName = process.argv[2];
 const filter = process.argv[3];
 
 const client = new NizimaClient();
 await client.connect();
 
-const ids = await resolveModelIds(client);
-let modelId: string;
-if (modelName) {
-  const found = ids.get(modelName);
-  if (!found) {
-    console.error(`モデルが見つからない: ${modelName}`);
-    console.error(`画面上のモデル: ${[...ids.keys()].join(", ")}`);
-    process.exit(1);
-  }
-  modelId = found;
-} else {
-  const current = (await client.request("GetCurrentModelId")) as {
-    ModelId: string;
-  };
-  modelId = current.ModelId;
-}
+const target = await resolveTarget(client, process.argv[2]);
 
-const expressions = (await client.request("GetExpressions", {
-  ModelId: modelId,
-})) as { Expressions: Array<{ Name: string; Active?: boolean }> };
+const expressions = await client.request<GetExpressionsResponse>(
+  "GetExpressions",
+  { ModelId: target.modelId },
+);
 
 const list = expressions.Expressions.filter((e) =>
   filter ? e.Name.toLowerCase().includes(filter.toLowerCase()) : true,
 );
 
-console.log(`${modelName ?? modelId}: 表情 ${expressions.Expressions.length} 件`);
+console.log(`${target.name}: 表情 ${expressions.Expressions.length} 件`);
 if (filter) console.log(`「${filter}」に一致: ${list.length} 件`);
 for (const e of list) {
   console.log(`  ${e.Name}${e.Active ? "  (再生中)" : ""}`);

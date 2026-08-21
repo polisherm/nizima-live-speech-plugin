@@ -14,6 +14,10 @@
 import { writeFileSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { NizimaClient } from "../core/nizima-client.js";
+import type {
+  GetCubismParametersResponse,
+  GetModelsResponse,
+} from "../core/nizima-types.js";
 import { resolveModelIds } from "../core/speak-core.js";
 import { RESET_EXPRESSION_NAME } from "../core/emotion.js";
 
@@ -30,9 +34,7 @@ const client = new NizimaClient();
 await client.connect();
 
 const ids = await resolveModelIds(client);
-const models = (await client.request("GetModels")) as {
-  Models: Array<{ ModelId: string; ModelPath?: string }>;
-};
+const models = await client.request<GetModelsResponse>("GetModels");
 
 // 対象は必ず名前で指定させる。
 //
@@ -80,9 +82,10 @@ for (const modelId of targets as string[]) {
   console.log(`  表情 ${scanned} 件から ${touched.size} 個のパラメータを集めた`);
 
   // 既定値はモデルから引く。推測しない。
-  const defs = (await client.request("GetCubismParameters", {
-    ModelId: modelId,
-  })) as { CubismParameters?: Array<{ Id: string; DefaultValue: number }> };
+  const defs = await client.request<GetCubismParametersResponse>(
+    "GetCubismParameters",
+    { ModelId: modelId },
+  );
   const defaults = new Map(
     (defs.CubismParameters ?? []).map((p) => [p.Id, p.DefaultValue]),
   );

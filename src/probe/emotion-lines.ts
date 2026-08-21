@@ -34,6 +34,3 @@ export const EMOTION_LINES: Record<string, Record<string, string>> = {
 };
 
 export const EMOTION_LINE_NAMES = Object.keys(EMOTION_LINES);
-
-/** 聞き比べる相手の名前。 */
-export const CAST_NAMES = ["めたん", "ずんだもん"];
