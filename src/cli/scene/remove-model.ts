@@ -1,11 +1,11 @@
 // 表示中のモデルをシーンから外す。
 //
-//   npx tsx src/cli/remove-model.ts <ModelId>
+//   npx tsx src/cli/scene/remove-model.ts <ModelId>
 //
 // 名前ではなく ModelId で指定する。
 // 同じ名前のモデルが並ぶことがあり、名前では狙ったほうを外せない。
-import { NizimaClient } from "../nizima/client.js";
-import { printModels } from "./shared.js";
+import { NizimaClient } from "../../nizima/client.js";
+import { printModels } from "../shared.js";
 
 const modelId = process.argv[2];
 if (!modelId) {

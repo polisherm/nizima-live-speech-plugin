@@ -122,8 +122,8 @@ VOICEVOX の利用規約は、利用したことが分かるクレジット表�
 モデルをシーンへ並べる。
 
 ```
-npx tsx src/cli/list-models.ts
-npx tsx src/cli/add-model.ts "<model3.json のパス>"
+npx tsx src/cli/scene/list-models.ts
+npx tsx src/cli/scene/add-model.ts "<model3.json のパス>"
 ```
 
 ## 構成
@@ -136,7 +136,9 @@ src/
   script/    台詞の記法。読み解き・整形・読みの確認・台本
   stage/     画面に出すもの。字幕とクレジット
   perform/   演じる。モデルの定義・感情・喋らせる
-  cli/       日常的に打つ入口
+  cli/       打って走らせる入口。npm run で呼べるものが直下に並ぶ
+    discuss/   お題から会話を作って喋らせる。指示の組み立てと生成を分けてある
+    scene/     シーンにモデルを並べる。整えるときだけ使う
   probe/     確かめる道具。用途で分けてある
     inspect/   何があるか見る。表情・パラメータ・アイテム・ずれ・字幕の文字列
     mouth/     口パクが動かないときの切り分け

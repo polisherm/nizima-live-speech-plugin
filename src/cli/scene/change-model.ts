@@ -1,11 +1,11 @@
 // 表示中のモデルを、別のモデルへ差し替える。
 //
-//   npx tsx src/cli/change-model.ts <ModelId> "<model3.json のパス>"
+//   npx tsx src/cli/scene/change-model.ts <ModelId> "<model3.json のパス>"
 //
 // 位置と大きさが引き継がれるかは差し替えの前後で表示する。
 // 引き継がれない場合は、並べ直しが要る。
-import { NizimaClient } from "../nizima/client.js";
-import type { GetModelsResponse, ModelInfo } from "../nizima/types.js";
+import { NizimaClient } from "../../nizima/client.js";
+import type { GetModelsResponse, ModelInfo } from "../../nizima/types.js";
 
 const modelId = process.argv[2];
 const modelPath = process.argv[3];
