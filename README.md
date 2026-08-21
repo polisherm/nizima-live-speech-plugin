@@ -5,11 +5,7 @@ nizima LIVE Plugin API（WebSocket）でモデルを操作し、VOICEVOX で声�
 
 2 体に会話させられる。台詞はその場で作らせても、書いた台本を読ませてもよい。
 
-nizima LIVE の AI アシスタント機能は使わない。
-姉妹ツール `nizima-claude-proxy` とは別の経路で動く。
-
-- `nizima-claude-proxy` — nizima の AI アシスタントの接続先を Claude にする。会話は nizima 側で完結する
-- `nizima-agent-bridge`（このツール） — Plugin API で表情と口パクを直接動かす
+nizima LIVE の AI アシスタント機能は使わない。Plugin API で表情と口パクを直接動かす。
 
 ## 前提
 
@@ -88,8 +84,15 @@ npm run cast -- takes/<ファイル>.txt
 ```
 npm run status      # 接続の確認。モデル・表情・モーションの一覧を出す
 npm run calm-down   # 動きっぱなしになったモデルを素へ戻す
+npm run credit      # 声のクレジットを画面に置く（--off で消す）
 npm run check       # 型チェック
 ```
+
+VOICEVOX の利用規約は、利用したことが分かるクレジット表記を求めている。
+`npm run credit` は「VOICEVOX: 四国めたん・ずんだもん」を画像として画面の隅に置く。
+録画して外に出すなら、これを出しておく。
+
+置いたあとの位置と大きさは nizima の画面で手でも動かせる。
 
 モデルをシーンへ並べる。
 
@@ -154,38 +157,22 @@ VOICEVOX のスタイルは声質の違いで、感情のために用意され�
 読み解くのは `src/core/line-parser.ts` の 1 か所だけ。
 以降は部品として扱うため、切る位置が記法の途中に来ることが起きない。
 
-## Claude Code の応答を喋らせる
+## 渡した文をそのまま喋らせる
 
-作者の環境では、Claude Code の Stop hook からこのツールを呼んで応答を読ませている。
-呼び出し側のスクリプトはこのリポジトリの外にあり、同梱していない。
-
-nizima LIVE と VOICEVOX の両方が起動しているときだけ喋る。
-喋らせたいときだけ nizima を開く運用なので、起動状態がそのままスイッチになる。
-
-nizima を開いたまま黙らせたいときは、次のファイルを置く。
-会話を再生している最中など、声が重なると困る場面で使う。
+会話も台本も通さず、その場で 1 文を読ませる。
 
 ```
-touch ~/.claude/speak-response.off   # 止める
-rm ~/.claude/speak-response.off      # 戻す
+npx tsx src/cli/speak.ts "<テキスト>" [話者ID] [表情名]
+echo "<Markdown>" | npx tsx src/cli/speak.ts --stdin --format
 ```
 
-読み上げるのは応答の冒頭 3 文だけ。全文だと長い報告で数分かかる。
+- `--stdin` — テキストを標準入力から読む
+- `--format` — Markdown を読み上げ向けに整形する。見出しの記号を落とし、
+  表とコードブロックを「省略」に置き換え、冒頭 3 文だけを読む
 
-## 実測メモ
+`--format` を付けなければ、渡した文をそのまま全部読む。
 
-Plugin API の挙動で、公式ドキュメントに書かれていないものがある。
-作った過程で確かめたことは、作者の Obsidian Vault に置いてある。このリポジトリには入っていない。
-
-確かめたのは次のあたり。
-
-- モデルの向きの変え方と、その限界
-- 表情とモーションを元へ戻す手順
-- 表情・モーションと口パクが競合する条件
-- Plugin API で任意画像をアイテムとして出す方法
-- 読み仮名の渡し方
-
-`src/probe/` は、これらを確かめるのに使ったツールそのもの。
+外のプログラムから呼ぶ入口として使える。
 
 ## 関連
 
