@@ -29,7 +29,7 @@ def models_root() -> Path:
     """nizima がモデルを置くフォルダを決める。
 
     既定は APPDATA の下。config.local.json に modelsRoot があれば、そちらを使う。
-    設定の形は src/core/config.ts と揃えてある。
+    設定の形は src/config.ts と揃えてある。
     """
     default = Path(os.environ.get("APPDATA", "")) / "Live2D" / "nizima LIVE" / "models"
 
