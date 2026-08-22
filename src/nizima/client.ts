@@ -2,7 +2,10 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import path from "node:path";
 
 import { config, REPO_ROOT } from "../config.js";
-import type { RegisterPluginResponse } from "./types.js";
+import type {
+  EstablishConnectionResponse,
+  RegisterPluginResponse,
+} from "./types.js";
 
 const PLUGIN_NAME = "nizima-live-speech-plugin";
 const PLUGIN_VERSION = "0.1.0";
@@ -43,6 +46,29 @@ function saveToken(token: string): void {
 }
 
 /**
+ * プラグインが無効なときの案内。
+ *
+ * 繋がっても、有効にするまでは何も通らない。
+ * 有効にするのは nizima の画面を触る人で、こちらからは頼めない。
+ *
+ * ErrorType をそのまま出すと、読んだ人は次の一手を決められない。
+ * どこを触ればいいかまで書く。
+ */
+function disabledMessage(justRegistered = false): string {
+  const head = justRegistered
+    ? `nizima LIVE に ${PLUGIN_NAME} を登録した。`
+    : `${PLUGIN_NAME} が nizima LIVE 側で無効になっている。`;
+  return `${head}\nプラグインマネージャーでトグルを有効にしてから、もう一度実行する。`;
+}
+
+/** Error の Data が PluginDisabled かどうか。 */
+function isPluginDisabled(data: unknown): boolean {
+  if (typeof data !== "object" || data === null) return false;
+  if (!("ErrorType" in data)) return false;
+  return data.ErrorType === "PluginDisabled";
+}
+
+/**
  * nizima LIVE Plugin API の WebSocket クライアント。
  * 接続と認証（RegisterPlugin / EstablishConnection）を担う。
  * トークンは state.json に保存し、次回から再利用する。
@@ -60,15 +86,24 @@ export class NizimaClient {
 
     const token = loadToken();
     if (token) {
+      // 鍵が通ったかどうかと、使える状態かどうかを分けて見る。
+      // 無効だったときに登録へ落とすと、nizima 側に同じ名前の登録が増える。
+      let established: EstablishConnectionResponse | null = null;
       try {
-        await this.request("EstablishConnection", {
-          Name: PLUGIN_NAME,
-          Token: token,
-          Version: PLUGIN_VERSION,
-        });
-        return;
+        established = await this.request<EstablishConnectionResponse>(
+          "EstablishConnection",
+          {
+            Name: PLUGIN_NAME,
+            Token: token,
+            Version: PLUGIN_VERSION,
+          },
+        );
       } catch {
         // トークンが無効になっている。登録からやり直す。
+      }
+      if (established) {
+        if (!established.Enabled) throw new Error(disabledMessage());
+        return;
       }
     }
 
@@ -81,6 +116,9 @@ export class NizimaClient {
       },
     );
     saveToken(response.Token);
+    // 登録しただけでは何も通らない。
+    // このまま先へ進めても最初の Method で落ちるので、ここで案内して止める。
+    throw new Error(disabledMessage(true));
   }
 
   private open(): Promise<void> {
@@ -121,8 +159,14 @@ export class NizimaClient {
     this.pending.delete(message.Id);
 
     if (message.Type === "Error") {
+      // 動かしている途中で無効にされることもある。
+      // どの Method でも同じ形で返るので、ここで一度だけ言い換える。
       pending.reject(
-        new Error(`${message.Method} error: ${JSON.stringify(message.Data)}`),
+        isPluginDisabled(message.Data)
+          ? new Error(disabledMessage())
+          : new Error(
+              `${message.Method} error: ${JSON.stringify(message.Data)}`,
+            ),
       );
     } else {
       pending.resolve(message.Data);
