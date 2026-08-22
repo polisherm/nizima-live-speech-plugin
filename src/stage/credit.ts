@@ -71,7 +71,7 @@ const ITEM_SCALE = 0.038;
  * 消すときに、この名前でアイテムを見分ける。
  * プロセスごとに変えると、別のプロセスが出したものを消せない。
  */
-const IMAGE_PATH = path.join(tmpdir(), "nizima-agent-bridge-credit.png");
+const IMAGE_PATH = path.join(tmpdir(), "nizima-live-speech-plugin-credit.png");
 
 /** いま開いているシーンの ID。 */
 async function currentSceneId(client: NizimaClient): Promise<string> {

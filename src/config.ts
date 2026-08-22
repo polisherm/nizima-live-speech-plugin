@@ -83,7 +83,7 @@ export interface Config {
 
 const DEFAULTS: Config = {
   personaDir: path.join(REPO_ROOT, "personas"),
-  pluginDeveloper: "nizima-agent-bridge",
+  pluginDeveloper: "nizima-live-speech-plugin",
   modelsRoot: path.join(
     process.env.APPDATA ?? "",
     "Live2D",

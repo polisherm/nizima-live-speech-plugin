@@ -1,4 +1,4 @@
-# nizima-agent-bridge
+# nizima-live-speech-plugin
 
 Live2D モデルに声・口パク・表情・字幕を付けて喋らせるツール。
 nizima LIVE Plugin API（WebSocket）でモデルを操作し、VOICEVOX で声を作る。
@@ -28,7 +28,7 @@ npm install
 | 項目 | 既定 | 何に使うか |
 |---|---|---|
 | `personaDir` | `personas/` | ペルソナ定義の置き場 |
-| `pluginDeveloper` | `nizima-agent-bridge` | nizima の登録に出る開発者名 |
+| `pluginDeveloper` | `nizima-live-speech-plugin` | nizima の登録に出る開発者名 |
 | `modelsRoot` | `%APPDATA%/Live2D/nizima LIVE/models` | 口パク用の複製を作る先 |
 | `voicevoxUrl` | `http://127.0.0.1:50021` | VOICEVOX Engine の待ち受け先 |
 | `voicevoxMaxPauseSec` | `0.35` | 句読点で黙る時間の上限（秒） |
@@ -48,7 +48,7 @@ npm install
 | `STYLE_NOTE="..."` | 掛け合いの運び方を、その回だけ注文する（`discuss`） |
 
 初回接続時に nizima LIVE 側へ登録通知が出る。
-プラグインマネージャーで `nizima-agent-bridge` のトグルを有効にする。
+プラグインマネージャーで `nizima-live-speech-plugin` のトグルを有効にする。
 取得したトークンは `state.json` に保存され、次回から自動で再接続する。
 
 口パク用のモデルを用意する。元のモデルは表情やモーションが口を動かすため、

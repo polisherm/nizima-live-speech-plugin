@@ -1,5 +1,5 @@
 {
-  "name": "nizima-agent-bridge",
+  "name": "nizima-live-speech-plugin",
   "version": "0.1.0",
   "description": "Make Live2D models in nizima LIVE speak with voice, lip sync, expressions, and subtitles via the Plugin API",
   "license": "MIT",

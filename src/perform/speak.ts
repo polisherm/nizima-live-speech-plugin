@@ -118,7 +118,7 @@ export function prepareSpeech(options: PrepareSpeechOptions): PreparedSpeech {
   const synthesizeAt = (index: number): Promise<SynthesizedChunk> => {
     const wavPath = path.join(
       tmpdir(),
-      `nizima-agent-bridge-${process.pid}-${wavSerial++}.wav`,
+      `nizima-live-speech-plugin-${process.pid}-${wavSerial++}.wav`,
     );
     // 読み方の指定は音声だけに当てる。字幕には元の表記を出す。
     // 切れ目を落とした形を基本にする。余分な間が入らない。

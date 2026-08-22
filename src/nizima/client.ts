@@ -4,7 +4,7 @@ import path from "node:path";
 import { config, REPO_ROOT } from "../config.js";
 import type { RegisterPluginResponse } from "./types.js";
 
-const PLUGIN_NAME = "nizima-agent-bridge";
+const PLUGIN_NAME = "nizima-live-speech-plugin";
 const PLUGIN_VERSION = "0.1.0";
 const PROTOCOL_VERSION = "1.0.0";
 
