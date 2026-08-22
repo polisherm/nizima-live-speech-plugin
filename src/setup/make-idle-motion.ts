@@ -13,6 +13,7 @@
 // これへ乗り換えれば、顔も体もまとめて素へ戻る。
 //
 // 口の開きだけは入れない。そこは口パクの持ち場で、モーションに触らせない。
+import "../fail-clean.js";
 import fs from "node:fs";
 import path from "node:path";
 import { NizimaClient } from "../nizima/client.js";

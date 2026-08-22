@@ -4,6 +4,7 @@
 //
 // 名前ではなく ModelId で指定する。
 // 同じ名前のモデルが並ぶことがあり、名前では狙ったほうを外せない。
+import "../../fail-clean.js";
 import { NizimaClient } from "../../nizima/client.js";
 import { printModels } from "../shared.js";
 

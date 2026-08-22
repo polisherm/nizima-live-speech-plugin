@@ -7,6 +7,7 @@
 //
 // モーションは止めるまで動き続ける。口を含むモーションが残ると、
 // 何も喋っていないのに口が開閉する。
+import "../fail-clean.js";
 import { NizimaClient } from "../nizima/client.js";
 import type { GetModelsResponse } from "../nizima/types.js";
 import { resolveModelIds } from "../perform/speak.js";

@@ -47,6 +47,7 @@ npm install
 | `FACE_FRONT=0` | 正面へ向け続けるのをやめる（`cast`） |
 | `SUBTITLE_KEEP=1` | 出した字幕の画像を消さずに残す |
 | `STYLE_NOTE="..."` | 掛け合いの運び方を、その回だけ注文する（`discuss`） |
+| `NIZIMA_TRACE=1` | 落ちたときに、呼び出しの跡も出す |
 
 初回接続時に nizima LIVE 側へ登録通知が出る。
 プラグインマネージャーで `nizima-live-speech-plugin` のトグルを有効にする。

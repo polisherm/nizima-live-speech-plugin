@@ -4,6 +4,7 @@
 //
 // 現在のモデルと、その表情・モーションを並べる。
 // 感情に当てられる素材が揃っているかを見るのに使う。
+import "../fail-clean.js";
 import { NizimaClient } from "../nizima/client.js";
 import type {
   GetCurrentModelIdResponse,

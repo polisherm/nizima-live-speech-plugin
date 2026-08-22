@@ -8,6 +8,7 @@
 // 喋らせながらやると、台詞 1 つあたりの生成が倍になり、
 // 先読みが再生に間に合わなくなって切れ目で無音が伸びる。
 // 台本にしてからまとめて直せば、再生の速さに響かない。
+import "../fail-clean.js";
 import { readFileSync, writeFileSync } from "node:fs";
 import { MODELS } from "../perform/models.js";
 import { parseScriptLine } from "../script/takes.js";

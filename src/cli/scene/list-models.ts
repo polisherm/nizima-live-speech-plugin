@@ -3,6 +3,7 @@
 //   npx tsx src/cli/scene/list-models.ts
 //
 // 2 体以上を並べるとき、どのモデルをどのシーンに追加できるかを調べる。
+import "../../fail-clean.js";
 import { NizimaClient } from "../../nizima/client.js";
 import type {
   GetCurrentSceneIdResponse,

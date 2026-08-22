@@ -2,6 +2,7 @@
 // SceneId を渡さないと新規ウィンドウで開くため、必ず現在のシーンを指定する。
 //
 // 使い方: npx tsx src/cli/scene/add-model.ts "<model3.json のパス>"
+import "../../fail-clean.js";
 import { NizimaClient } from "../../nizima/client.js";
 import type {
   AddModelResponse,

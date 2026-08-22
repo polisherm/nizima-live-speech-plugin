@@ -11,6 +11,7 @@
 //
 // そこで「既定値を Overwrite で指定した表情」を作る。
 // 表情として再生するため、戻り方にもフェードがかかる。
+import "../fail-clean.js";
 import { writeFileSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { NizimaClient } from "../nizima/client.js";

@@ -1,3 +1,4 @@
+import "../fail-clean.js";
 import { readFileSync } from "node:fs";
 import { config } from "../config.js";
 import { NizimaClient } from "../nizima/client.js";

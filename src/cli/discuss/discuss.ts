@@ -11,6 +11,7 @@
 // API キーは要らない。料金はサブスクリプションの枠から引かれる。
 //
 // 発言を作るところは writer.ts、指示の組み立ては persona.ts にある。
+import "../../fail-clean.js";
 import { writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 

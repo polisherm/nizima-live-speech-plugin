@@ -1,3 +1,4 @@
+import "../fail-clean.js";
 import { NizimaClient } from "../nizima/client.js";
 import type { GetCurrentModelIdResponse } from "../nizima/types.js";
 import { formatForSpeech } from "../script/format-speech.js";

@@ -4,6 +4,7 @@
 //
 // 位置と大きさが引き継がれるかは差し替えの前後で表示する。
 // 引き継がれない場合は、並べ直しが要る。
+import "../../fail-clean.js";
 import { NizimaClient } from "../../nizima/client.js";
 import type { GetModelsResponse, ModelInfo } from "../../nizima/types.js";
 
