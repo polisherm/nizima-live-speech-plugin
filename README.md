@@ -13,6 +13,7 @@ nizima LIVE の AI アシスタント機能は使わない。Plugin API で表�
 - nizima LIVE 2.7 以上（Plugin API 対応バージョン）
 - nizima LIVE のプラグイン機能が有効（プラグインマネージャーの上部トグル）
 - VOICEVOX（音声合成に使う）
+- Claude の API キー（`discuss` と `fix-readings` を使うときだけ要る）
 
 ## セットアップ
 
@@ -69,6 +70,29 @@ python scripts/make-talk-models.py --apply   # 実際に作る
 npx tsx src/setup/make-idle-motion.ts zundamon_talk shikoku_metan_talk
 npx tsx src/setup/make-reset-expression.ts zundamon_talk shikoku_metan_talk
 ```
+
+### Claude の API キー
+
+`discuss` と `fix-readings` は Claude Agent SDK を使う。
+この 2 つを走らせる前に、API キーを環境変数へ置く。
+
+キーは [Claude Console](https://platform.claude.com/) で発行する。
+
+```
+$env:ANTHROPIC_API_KEY = "<キー>"   # PowerShell
+export ANTHROPIC_API_KEY=<キー>     # bash
+```
+
+SDK は `.env` を自動では読まない。シェルの環境変数として渡す。
+
+Amazon Bedrock・Google Cloud・Microsoft Foundry 経由でも動く。
+`CLAUDE_CODE_USE_BEDROCK=1` のような環境変数で切り替える。
+詳細は [Agent SDK のドキュメント](https://code.claude.com/docs/en/agent-sdk/quickstart)にある。
+
+claude.ai のログインは使えない。
+Anthropic が、第三者の製品での claude.ai ログインを認めていない。
+
+`cast` と `speak` はキーが要らない。台本があれば動く。
 
 ## 使い方
 
