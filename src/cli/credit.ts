@@ -4,7 +4,7 @@
 //   npx tsx src/cli/credit.ts --off  消す
 //
 // 内容は変わらないので、置いたままにする。
-// 位置と大きさは nizima の画面で手でも動かせる。動かした結果は保たれる。
+// 位置と大きさは nizima LIVE の画面で手でも動かせる。動かした結果は保たれる。
 // シーンを保存すれば、次に開いたときも残る。
 import "../fail-clean.js";
 import { NizimaClient } from "../nizima/client.js";

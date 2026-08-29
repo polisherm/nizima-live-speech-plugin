@@ -87,7 +87,7 @@ export class NizimaClient {
     const token = loadToken();
     if (token) {
       // 鍵が通ったかどうかと、使える状態かどうかを分けて見る。
-      // 無効だったときに登録へ落とすと、nizima 側に同じ名前の登録が増える。
+      // 無効だったときに登録へ落とすと、nizima LIVE 側に同じ名前の登録が増える。
       let established: EstablishConnectionResponse | null = null;
       try {
         established = await this.request<EstablishConnectionResponse>(

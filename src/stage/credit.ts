@@ -13,7 +13,7 @@
 //
 // 台詞の字幕と違い、内容は変わらない。
 // 置いたままにして、喋る処理からは切り離す。
-// nizima の画面で手で動かせるので、位置と大きさは目で合わせられる。
+// nizima LIVE の画面で手で動かせるので、位置と大きさは目で合わせられる。
 import path from "node:path";
 import { tmpdir } from "node:os";
 import type { NizimaClient } from "../nizima/client.js";
@@ -61,7 +61,7 @@ const POSITION_Y = -0.92;
  * 0.09 を当てたところ、画面の幅を超えた。行数が違うと見え方が変わる。
  *
  * 何で決まるかは確かめていない。値は画面で合わせて決めた。
- * アイテムは nizima 上で手でも動かせるので、目で合わせてから寄せてある。
+ * アイテムは nizima LIVE 上で手でも動かせるので、目で合わせてから寄せてある。
  */
 const ITEM_SCALE = 0.038;
 

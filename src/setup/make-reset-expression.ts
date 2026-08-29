@@ -135,5 +135,5 @@ for (const modelId of targets as string[]) {
   }
 }
 
-console.log("\n完了。nizima が読み直すまで反映されないことがある。");
+console.log("\n完了。nizima LIVE が読み直すまで反映されないことがある。");
 client.close();

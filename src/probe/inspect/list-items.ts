@@ -2,7 +2,7 @@
 //
 //   npx tsx src/probe/list-items.ts
 //
-// アイテムは nizima の画面上で手でも動かせる。
+// アイテムは nizima LIVE の画面上で手でも動かせる。
 // 目で合わせた位置と大きさを、そのまま設定へ写すのに使う。
 import { NizimaClient } from "../../nizima/client.js";
 import type {

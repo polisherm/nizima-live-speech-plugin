@@ -83,7 +83,7 @@ export interface PrepareSpeechOptions {
   maxChars?: number;
   /** 発言の頭で出した感情。本文の途中にタグが無い区間は、この感情のまま続く。 */
   emotion?: string;
-  /** nizima 側のモデル名。感情に合う声を引くのに使う。 */
+  /** nizima LIVE 側のモデル名。感情に合う声を引くのに使う。 */
   modelName?: string;
 }
 
@@ -196,7 +196,7 @@ export interface SpeakOptions {
    */
   emotion?: string;
   /**
-   * nizima 側のモデル名。
+   * nizima LIVE 側のモデル名。
    *
    * 感情に合う声を引くのに使う。渡さなければ speakerId のまま喋る。
    */
@@ -402,10 +402,10 @@ export async function speakOnModel(
  * 解説動画で 2 体を正面に並べる形式が定番なのは、この制約があるため。
  *
  * 送り先は LiveParameter の Yaw で、Overwrite は false にする。
- * false のときだけ nizima 側の補正がかかり、値の変化が滑らかになる。
+ * false のときだけ nizima LIVE 側の補正がかかり、値の変化が滑らかになる。
  * true にすると補正を切って上書きするため、変化のたびに一段で飛ぶ。
  *
- * 補正の強さは nizima 側の設定で決まる。
+ * 補正の強さは nizima LIVE 側の設定で決まる。
  * パラメータ設定の「顔の左右の動き → 角度X」にあるスムージングで調整する。
  * 送信間隔や Time を変えても速さは変わらない。
  */
@@ -427,7 +427,7 @@ export async function faceFront(
 /**
  * モデル名から ModelId を引く。
  *
- * ModelId は nizima の起動やモデルの追加で振り直される。
+ * ModelId は nizima LIVE の起動やモデルの追加で振り直される。
  * 役の定義に ModelId を直書きすると次回起動で壊れるため、名前から都度解決する。
  *
  * 置き場のフォルダ名でも引けるようにしてある。

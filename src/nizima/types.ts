@@ -134,7 +134,7 @@ export interface RegisterPluginResponse {
  * 保存した鍵で繋ぎ直したときの応答。
  *
  * Enabled が false のあいだ、どの Method も PluginDisabled で失敗する。
- * 繋がったことと使えることは別で、有効にするのは nizima の画面を触る人。
+ * 繋がったことと使えることは別で、有効にするのは nizima LIVE の画面を触る人。
  */
 export interface EstablishConnectionResponse {
   Enabled: boolean;

@@ -41,7 +41,7 @@ export interface Config {
    */
   pluginDeveloper: string;
   /**
-   * nizima がモデルを置くフォルダ。
+   * nizima LIVE がモデルを置くフォルダ。
    *
    * 口パク用の複製を作るときに読み書きする（scripts/make-talk-models.py）。
    */

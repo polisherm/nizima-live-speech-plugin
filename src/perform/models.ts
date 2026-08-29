@@ -93,7 +93,7 @@ export const MODELS: Record<string, ModelDefinition> = {
 
 export const MODEL_NAMES = Object.keys(MODELS);
 
-/** nizima 側のモデル名から定義を引く。 */
+/** nizima LIVE 側のモデル名から定義を引く。 */
 export function findByModelName(
   modelName: string,
 ): ModelDefinition | undefined {

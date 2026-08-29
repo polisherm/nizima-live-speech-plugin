@@ -41,6 +41,6 @@ const after = await client.request<GetLiveParameterValuesResponse>(
 );
 
 const actual = after.LiveParameterValues.find((p) => p.Id === paramId);
-console.log(`維持終了。nizima 側の現在値: ${JSON.stringify(actual)}`);
+console.log(`維持終了。nizima LIVE 側の現在値: ${JSON.stringify(actual)}`);
 
 client.close();

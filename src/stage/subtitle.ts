@@ -16,7 +16,7 @@ import { PwshWorker } from "../voice/pwsh-worker.js";
 /**
  * 台詞を画像にして、nizima LIVE の画面上に字幕として置く。
  *
- * nizima の「OBS 字幕出力」は AI アシスタント機能の応答しか出さず、
+ * nizima LIVE の「OBS 字幕出力」は AI アシスタント機能の応答しか出さず、
  * しかも表示するのは OBS 側になる。画面に直接出したいので、
  * Plugin API のアイテム機能（任意の画像を配置できる）を使う。
  *
@@ -40,7 +40,7 @@ const FONT_SIZE = 96;
 /**
  * 字幕の行数。画像の高さはこれで固定される。
  *
- * nizima は画像全体を一定の大きさに収めて表示する。
+ * nizima LIVE は画像全体を一定の大きさに収めて表示する。
  * 台詞の長さで画像が縦に伸びると、その分だけ文字が縮んで読めなくなる。
  * 行数を固定して画像サイズを一定に保つ。
  *
@@ -132,7 +132,7 @@ export async function warmUpSubtitleRenderer(): Promise<void> {
 /**
  * 字幕を画面に出す準備を済ませる。
  *
- * 1 枚目を出すときだけ、nizima 側で画像の読み込みが起きる。
+ * 1 枚目を出すときだけ、nizima LIVE 側で画像の読み込みが起きる。
  * そのぶん、追加してから位置が届くまでが延びて、
  * 既定の位置と大きさのまま画面の真ん中に出たあと、定位置へ縮む。
  *
@@ -243,7 +243,7 @@ export class Subtitle {
    * 1 行に入る文字数の計算が名前のぶんだけずれて、末尾が省略される。
    */
   async show(text: string, color = "#FFFFFF", speaker?: string): Promise<void> {
-    // ファイル名を毎回変える。同じパスを上書きすると nizima が
+    // ファイル名を毎回変える。同じパスを上書きすると nizima LIVE が
     // 前の画像を掴んだままになることがあるため。
     const imagePath = path.join(
       tmpdir(),

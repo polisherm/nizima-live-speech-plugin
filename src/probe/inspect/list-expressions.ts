@@ -1,9 +1,9 @@
-// モデルを指定して、nizima が認識している表情の一覧を出す。
+// モデルを指定して、nizima LIVE が認識している表情の一覧を出す。
 //
 //   npx tsx src/probe/list-expressions.ts [モデル名] [絞り込み]
 //   例: npx tsx src/probe/list-expressions.ts zundamon_talk reset
 //
-// model3.json に足した表情は、nizima が読み直すまで一覧に出ない。
+// model3.json に足した表情は、nizima LIVE が読み直すまで一覧に出ない。
 // 読み直しは同じモデルへの ChangeModel で起こせる。
 import { NizimaClient } from "../../nizima/client.js";
 import type { GetExpressionsResponse } from "../../nizima/types.js";
