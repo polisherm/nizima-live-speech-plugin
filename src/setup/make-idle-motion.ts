@@ -130,6 +130,10 @@ for (const model of models.Models) {
   };
 
   const outPath = path.join(motionDir, `${IDLE_NAME}.motion3.json`);
+  // 同じ名前のモーションを元から持つモデルもある。黙って消さず、上書きを伝える。
+  if (fs.existsSync(outPath)) {
+    console.log(`  ${IDLE_NAME}.motion3.json が既にある。上書きする`);
+  }
   fs.writeFileSync(outPath, JSON.stringify(idle, null, "\t"), "utf-8");
   console.log(`  書き出した: ${path.basename(outPath)}（カーブ ${curves.length} 本）`);
 

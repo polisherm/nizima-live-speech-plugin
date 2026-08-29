@@ -12,7 +12,12 @@
 // そこで「既定値を Overwrite で指定した表情」を作る。
 // 表情として再生するため、戻り方にもフェードがかかる。
 import "../fail-clean.js";
-import { writeFileSync, readFileSync, readdirSync } from "node:fs";
+import {
+  writeFileSync,
+  readFileSync,
+  readdirSync,
+  existsSync,
+} from "node:fs";
 import path from "node:path";
 import { NizimaClient } from "../nizima/client.js";
 import type {
@@ -112,11 +117,12 @@ for (const modelId of targets as string[]) {
     Parameters: parameters,
   };
   const expressionFile = `${RESET_EXPRESSION_NAME}.exp3.json`;
-  writeFileSync(
-    path.join(motionDir, expressionFile),
-    JSON.stringify(expression, null, "\t"),
-    "utf-8",
-  );
+  const expressionPath = path.join(motionDir, expressionFile);
+  // 同じ名前の表情を元から持つモデルもある。黙って消さず、上書きを伝える。
+  if (existsSync(expressionPath)) {
+    console.log(`  ${expressionFile} が既にある。上書きする`);
+  }
+  writeFileSync(expressionPath, JSON.stringify(expression, null, "\t"), "utf-8");
   console.log(`  書き出した: motion/${expressionFile}`);
 
   // model3.json へ登録する。既にあれば触らない。
