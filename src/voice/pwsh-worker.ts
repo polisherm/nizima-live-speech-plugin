@@ -1,4 +1,8 @@
-import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
+import {
+  spawn,
+  spawnSync,
+  type ChildProcessWithoutNullStreams,
+} from "node:child_process";
 
 /**
  * 起動したままにしておく PowerShell のプロセス。
@@ -16,6 +20,35 @@ import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 /** 応答を待つ上限（ミリ秒）。届かないまま止まると、そこで先へ進めなくなる。 */
 const RESPONSE_TIMEOUT_MS = 15000;
 
+/**
+ * 使う PowerShell を決める。
+ *
+ * pwsh（7 系）は自分で入れるもので、Windows に最初から入っているのは powershell（5.1）。
+ * ここで使う Media.SoundPlayer と System.Drawing はどちらでも動く。
+ * 5.1 で描いた字幕は、7 系で描いたものとバイト単位で同じだった。
+ *
+ * 探すのは最初の 1 回だけ。結果は使い回す。
+ */
+let shellPath: string | null = null;
+
+function resolveShell(): string {
+  if (shellPath) return shellPath;
+
+  for (const candidate of ["pwsh", "powershell"]) {
+    const probe = spawnSync(candidate, ["-NoProfile", "-Command", "exit 0"], {
+      stdio: "ignore",
+    });
+    if (!probe.error && probe.status === 0) {
+      shellPath = candidate;
+      return shellPath;
+    }
+  }
+
+  throw new Error(
+    "PowerShell が見つからない。音の再生と字幕の描画に使うため、pwsh か powershell のどちらかが要る",
+  );
+}
+
 export class PwshWorker {
   private process: ChildProcessWithoutNullStreams | null = null;
   private buffer = "";
@@ -27,7 +60,15 @@ export class PwshWorker {
   private ensureProcess(): ChildProcessWithoutNullStreams {
     if (this.process) return this.process;
 
-    const child = spawn("pwsh", ["-NoProfile", "-Command", this.script]);
+    // 5.1 の既定ポリシーは Restricted で、署名の無い .ps1 を拒む。
+    // 字幕はスクリプトファイルを呼び出すため、外さないと描けない。
+    const child = spawn(resolveShell(), [
+      "-NoProfile",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-Command",
+      this.script,
+    ]);
     child.stdout.setEncoding("utf-8");
     child.stdout.on("data", (chunk: string) => {
       this.buffer += chunk;
