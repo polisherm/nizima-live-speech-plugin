@@ -1,6 +1,7 @@
 {
   "personaDir": "C:/path/to/your/personas",
   "modelsRoot": "C:/Users/you/AppData/Roaming/Live2D/nizima LIVE/models",
+  "nizimaUrl": "ws://localhost:22022/",
   "voicevoxUrl": "http://127.0.0.1:50021",
   "voicevoxMaxPauseSec": 0.35,
   "voicevoxPauseScale": 1,

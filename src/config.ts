@@ -39,6 +39,12 @@ export interface Config {
    * 口パク用の複製を作るときに読み書きする（scripts/make-talk-models.py）。
    */
   modelsRoot: string;
+  /**
+   * nizima LIVE Plugin API の繋ぎ先。
+   *
+   * ポートはプラグインマネージャーで変えられる。既定は 22022。
+   */
+  nizimaUrl: string;
   /** VOICEVOX Engine の待ち受け先。 */
   voicevoxUrl: string;
   /**
@@ -82,6 +88,7 @@ const DEFAULTS: Config = {
     "nizima LIVE",
     "models",
   ),
+  nizimaUrl: "ws://localhost:22022/",
   voicevoxUrl: "http://127.0.0.1:50021",
   voicevoxMaxPauseSec: 0.35,
   voicevoxPauseScale: 1,

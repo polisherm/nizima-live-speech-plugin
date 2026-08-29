@@ -101,7 +101,7 @@ export class NizimaClient {
   private counter = 0;
   private readonly eventHandlers = new Map<string, (data: unknown) => void>();
 
-  constructor(private readonly url = "ws://localhost:22022/") {}
+  constructor(private readonly url = config.nizimaUrl) {}
 
   async connect(): Promise<void> {
     await this.open();
