@@ -7,8 +7,20 @@ import type {
   RegisterPluginResponse,
 } from "./types.js";
 
+// nizima LIVE のプラグインマネージャーに出る 3 つ。登録のときだけ渡す。
+// API で必須なのは Name だけで、Developer と Version は任意。
+// fork して別物として登録するなら、名前と開発者を書き換える。
 const PLUGIN_NAME = "nizima-live-speech-plugin";
-const PLUGIN_VERSION = "0.1.0";
+const PLUGIN_DEVELOPER = "polisherm";
+
+// 版の正本は package.json に置く。ここに直接書くと 2 か所を手で揃えることになる。
+// ズレても動くため、nizima LIVE の画面に出る版だけが古いまま残る。
+const PLUGIN_VERSION = JSON.parse(
+  readFileSync(path.join(REPO_ROOT, "package.json"), "utf-8"),
+).version as string;
+
+// nizima LIVE Plugin API の版。全メッセージのヘッダー（nLPlugin）に入る。
+// プラグインの版ではなく、通信の仕様の版。API 側が上がったときだけ追随する。
 const PROTOCOL_VERSION = "1.0.0";
 
 // 認証トークンの置き場。プロジェクトの直下に置く。
@@ -111,7 +123,7 @@ export class NizimaClient {
       "RegisterPlugin",
       {
         Name: PLUGIN_NAME,
-        Developer: config.pluginDeveloper,
+        Developer: PLUGIN_DEVELOPER,
         Version: PLUGIN_VERSION,
       },
     );

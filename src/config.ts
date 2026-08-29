@@ -34,13 +34,6 @@ export interface Config {
    */
   personaDir: string;
   /**
-   * nizima のプラグインマネージャーに出る開発者名。
-   *
-   * 初回の登録のときだけ使う。登録済みの環境で変えても、
-   * 保存したトークンで接続するかぎり表示は変わらない。
-   */
-  pluginDeveloper: string;
-  /**
    * nizima LIVE がモデルを置くフォルダ。
    *
    * 口パク用の複製を作るときに読み書きする（scripts/make-talk-models.py）。
@@ -83,7 +76,6 @@ export interface Config {
 
 const DEFAULTS: Config = {
   personaDir: path.join(REPO_ROOT, "personas"),
-  pluginDeveloper: "nizima-live-speech-plugin",
   modelsRoot: path.join(
     process.env.APPDATA ?? "",
     "Live2D",
