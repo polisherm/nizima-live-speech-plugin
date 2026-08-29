@@ -3,7 +3,8 @@ dist/
 
 # nizima LIVE の認証トークン。
 # これがあれば誰でもこのプラグインとして接続できる。共有しない。
-state.json
+# 退避した控え（state.json.bak など）も同じ中身なので、まとめて外す。
+state.json*
 
 # 環境ごとの設定。人によって中身が違う。
 # 書き方は config.example.json を見る。

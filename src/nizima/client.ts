@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
 
 import { config, REPO_ROOT } from "../config.js";
@@ -23,11 +23,20 @@ const PLUGIN_VERSION = JSON.parse(
 // プラグインの版ではなく、通信の仕様の版。API 側が上がったときだけ追随する。
 const PROTOCOL_VERSION = "1.0.0";
 
-// 認証トークンの置き場。プロジェクトの直下に置く。
+// 認証トークンの置き場。
+//
+// リポジトリの中には置かない。.gitignore は git にしか効かないため、
+// フォルダごと渡したりバックアップに乗せたりすると、そのまま付いていく。
+//
+// 公式のサンプルも、OS が用意したアプリごとの領域に保存している。
+// QML Sample は QSettings、Parameter Preview は localStorage。どちらも平文。
 //
 // 場所がずれると、保存してあるトークンを読めない。
-// そのたびに認証をやり直すため、nizima 側に同じ名前のプラグインが増える。
-const STATE_FILE = path.join(REPO_ROOT, "state.json");
+// そのたびに認証をやり直すため、nizima LIVE 側に同じ名前のプラグインが増える。
+const STATE_DIR = process.env.APPDATA
+  ? path.join(process.env.APPDATA, PLUGIN_NAME)
+  : REPO_ROOT;
+const STATE_FILE = path.join(STATE_DIR, "state.json");
 
 interface PluginMessage {
   nLPlugin: string;
@@ -54,6 +63,7 @@ function loadToken(): string | null {
 }
 
 function saveToken(token: string): void {
+  mkdirSync(STATE_DIR, { recursive: true });
   writeFileSync(STATE_FILE, JSON.stringify({ token }, null, 2), "utf-8");
 }
 
