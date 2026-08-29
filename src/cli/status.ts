@@ -1,9 +1,10 @@
-// 接続を確かめる。
+// 画面に出ているモデルと、その表情・モーションを並べる。
 //
 //   npm run status
 //
-// 現在のモデルと、その表情・モーションを並べる。
 // 感情に当てられる素材が揃っているかを見るのに使う。
+//
+// 画面にモデルが出ている前提で書いてある。接続と登録だけなら connect.ts を使う。
 import "../fail-clean.js";
 import { NizimaClient } from "../nizima/client.js";
 import type {
