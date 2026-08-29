@@ -22,7 +22,12 @@ export interface EmotionLook {
 }
 
 export interface ModelDefinition {
-  /** nizima 側のモデル名。口パク用に作った複製のフォルダ名を指す。 */
+  /**
+   * nizima LIVE 側のモデル名。口パク用に作った複製のフォルダ名を指す。
+   *
+   * make-talk-models.ts が live.json の name も同じ値に揃えるため、
+   * 複製を作り直したあとは nizima LIVE が返す Name とも一致する。
+   */
   modelName: string;
   /**
    * VOICEVOX の音源の名前。

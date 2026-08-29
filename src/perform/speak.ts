@@ -431,9 +431,9 @@ export async function faceFront(
  * 役の定義に ModelId を直書きすると次回起動で壊れるため、名前から都度解決する。
  *
  * 置き場のフォルダ名でも引けるようにしてある。
- * nizima が返す Name はモデルの内部名で、フォルダごと複製しても変わらない。
- * 口パク用に表情を削った複製と元のモデルが、同じ名前で並ぶ。
- * ファイル名を変えても Name は変わらないため、フォルダ名で見分ける。
+ * nizima LIVE が返す Name は live.json の name で、フォルダを複製しただけでは変わらない。
+ * make-talk-models.ts が複製側の name を書き換えるため、作り直せば Name でも引ける。
+ * 書き換える前に作った複製が手元に残っていることもあるので、フォルダ名も見る。
  */
 export async function resolveModelIds(
   client: NizimaClient,

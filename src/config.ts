@@ -40,7 +40,7 @@ export interface Config {
   /**
    * nizima LIVE がモデルを置くフォルダ。
    *
-   * 口パク用の複製を作るときに読み書きする（scripts/make-talk-models.py）。
+   * 口パク用の複製を作るときに読み書きする（src/setup/make-talk-models.ts）。
    */
   modelsRoot: string;
   /**
