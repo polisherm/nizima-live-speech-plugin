@@ -64,7 +64,7 @@ export interface Config {
    */
   voicevoxPauseScale: number;
   /** 発言を作るモデル。 */
-  discussModel: string;
+  talkModel: string;
   /**
    * 読みの確認に使うモデル。
    *
@@ -92,7 +92,7 @@ const DEFAULTS: Config = {
   voicevoxUrl: "http://127.0.0.1:50021",
   voicevoxMaxPauseSec: 0.35,
   voicevoxPauseScale: 1,
-  discussModel: "claude-sonnet-5",
+  talkModel: "claude-sonnet-5",
   verifyModel: "claude-sonnet-5",
   subtitleWithName: true,
 };

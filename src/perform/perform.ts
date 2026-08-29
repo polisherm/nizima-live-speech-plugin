@@ -1,6 +1,6 @@
 // 1 つの台詞を、声・口パク・表情・字幕をそろえて演じる。
 //
-// 台詞をその場で作る流れ（discuss）と、書いてある台本を読む流れ（cast）で共有する。
+// 台詞をその場で作る流れ（talk）と、書いてある台本を読む流れ（cast）で共有する。
 // どちらも見え方は同じにする。
 import type { NizimaClient } from "../nizima/client.js";
 import { Subtitle, SUBTITLE_MAX_CHARS } from "../stage/subtitle.js";

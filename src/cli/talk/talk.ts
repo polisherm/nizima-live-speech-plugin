@@ -1,9 +1,9 @@
-// お題を渡して、2 体のモデルに議論させる。
+// お題を渡して、2 体のモデルに会話させる。
 //
 // 台本は用意しない。発言はその場で生成し、再生し、次の発言の材料にする。
 //
 // 使い方:
-//   npm run discuss -- "<お題>" [往復数] [先に話す役]
+//   npm run talk -- "<お題>" [往復数] [先に話す役]
 //
 // 先に話す役を書かなければ、毎回どちらかに振る。
 //
@@ -43,9 +43,9 @@ import { createWriter, type Line, type LineSession } from "./writer.js";
  * 上位 2 本に両方が 1 本ずつ入り、差は付かなかった。
  * 会話の面白さで劣らないため、単価の低いほうを採る。
  *
- * 差し替えは config.local.json の discussModel で。
+ * 差し替えは config.local.json の talkModel で。
  */
-const MODEL = config.discussModel;
+const MODEL = config.talkModel;
 
 // 発言と発言の間はここで作らない。
 //
@@ -70,7 +70,7 @@ const topic = process.argv[2];
 const rounds = Number.parseInt(process.argv[3] ?? "6", 10);
 
 if (!topic) {
-  console.error('usage: npm run discuss -- "<お題>" [往復数] [先に話す役]');
+  console.error('usage: npm run talk -- "<お題>" [往復数] [先に話す役]');
   process.exit(1);
 }
 
@@ -306,7 +306,7 @@ for (let turn = 0; turn < total; turn++) {
   await resetEmotion(client, speakerModelId);
 }
 
-console.log("\n議論を終えた");
+console.log("\n会話を終えた");
 
 // 台本を書き出す。気に入った回をあとで読み直せる。
 const stamp = new Date()
@@ -324,7 +324,7 @@ await subtitle?.clear();
 await closeMouths();
 
 // 姿勢と表情を素へ戻す。最後に喋った側だけでは足りない。
-// 相手の発言を聞いている側にも残り、汗をかいた顔のまま議論が終わる。
+// 相手の発言を聞いている側にも残り、汗をかいた顔のまま会話が終わる。
 for (const role of Object.values(MODELS)) {
   const modelId = modelIds.get(role.modelName);
   if (!modelId) continue;

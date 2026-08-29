@@ -9,7 +9,7 @@
     "build": "tsc",
     "check": "tsc --noEmit",
     "status": "tsx src/cli/status.ts",
-    "discuss": "tsx src/cli/discuss/discuss.ts",
+    "talk": "tsx src/cli/talk/talk.ts",
     "cast": "tsx src/cli/cast.ts",
     "fix-readings": "tsx src/cli/fix-readings.ts",
     "credit": "tsx src/cli/credit.ts",
