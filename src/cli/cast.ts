@@ -14,10 +14,19 @@ import type { PreparedSpeech } from "../perform/speak.js";
 import { resetEmotion, returnToIdle } from "../perform/emotion.js";
 import { Subtitle, closeSubtitleRenderer } from "../stage/subtitle.js";
 import { parseScript, type ScriptLine } from "../script/takes.js";
-import { readStdin } from "./shared.js";
+import { parseArgs, readStdin } from "./shared.js";
 
-/** 字幕を出すか。SUBTITLE=0 を渡すと声だけになる。 */
-const SUBTITLE_ENABLED = process.env.SUBTITLE !== "0";
+const args = parseArgs(process.argv.slice(2));
+
+/** 字幕を出すか。--no-subtitle で声だけになる。 */
+const SUBTITLE_ENABLED = !args.has("--no-subtitle");
+
+/**
+ * 顔をこちらへ向け続けるか。--no-face-front で止める。
+ *
+ * 向きも口も同じ API へ送る。片方がもう片方を打ち消していないかの切り分けに使う。
+ */
+const FACE_FRONT_ENABLED = !args.has("--no-face-front");
 
 /** 字幕に話者名を出すか。 */
 const SUBTITLE_WITH_NAME = config.subtitleWithName;
@@ -42,15 +51,17 @@ const SUBTITLE_WITH_NAME = config.subtitleWithName;
 // ここでも待つと足し算になり、掛け合いが間延びする。
 // 間の長さは音声側だけが持つ（voicevox.ts の末尾の無音を参照）。
 
-const args = process.argv.slice(2);
-const source = args.includes("--stdin")
+const source = args.has("--stdin")
   ? await readStdin()
-  : args[0]
-    ? readFileSync(args[0], "utf-8")
+  : args.positional[0]
+    ? readFileSync(args.positional[0], "utf-8")
     : "";
 
 if (!source.trim()) {
-  console.error("usage: cast.ts <台本ファイル>\n       cast.ts --stdin");
+  console.error(
+    "usage: cast.ts <台本ファイル> [--no-subtitle] [--no-face-front]\n" +
+      "       cast.ts --stdin [--no-subtitle] [--no-face-front]",
+  );
   process.exit(1);
 }
 
@@ -105,12 +116,8 @@ console.log(`準備を終えた（${Date.now() - warmUpStartedAt}ms）\n`);
 const subtitle = SUBTITLE_ENABLED ? new Subtitle(client) : null;
 
 // 顔をこちらへ向け続ける。放っておくと少しずつ横を向く。
-//
-// FACE_FRONT=0 で止められる。
-// 向きも口も同じ API へ送るため、片方がもう片方を打ち消していないかを
-// 切り分けるのに使う。
 const posture = setInterval(() => {
-  if (process.env.FACE_FRONT === "0") return;
+  if (!FACE_FRONT_ENABLED) return;
   for (const name of new Set(script.map((l) => MODELS[l.role].modelName))) {
     const modelId = modelIds.get(name);
     if (modelId) void faceFront(client, modelId);

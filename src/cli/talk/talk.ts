@@ -3,9 +3,14 @@
 // 台本は用意しない。発言はその場で生成し、再生し、次の発言の材料にする。
 //
 // 使い方:
-//   npm run talk -- "<お題>" [往復数] [先に話す役]
+//   npm run talk -- "<お題>" [往復数] [先に話す役] [フラグ]
 //
 // 先に話す役を書かなければ、毎回どちらかに振る。
+//
+// フラグ:
+//   --no-speak      喋らせず、台本だけ作る
+//   --no-subtitle   字幕を出さない
+//   --style "..."   掛け合いの運び方を、その回だけ注文する
 //
 // 生成には Claude Agent SDK を使う。Claude Code のログインをそのまま使うため
 // API キーは要らない。料金はサブスクリプションの枠から引かれる。
@@ -34,6 +39,7 @@ import {
   takeRenderElapsedMs,
   takePlaceElapsedMs,
 } from "../../stage/subtitle.js";
+import { parseArgs } from "../shared.js";
 import { createWriter, type Line, type LineSession } from "./writer.js";
 
 /**
@@ -55,22 +61,30 @@ const MODEL = config.talkModel;
 /** 字幕に話者名を付けるか。 */
 const SUBTITLE_WITH_NAME = config.subtitleWithName;
 
-/** 字幕を出すか。SUBTITLE=0 で切る。 */
-const SUBTITLE_ENABLED = process.env.SUBTITLE !== "0";
+const args = parseArgs(process.argv.slice(2), ["--style"]);
+
+/** 字幕を出すか。--no-subtitle で切る。 */
+const SUBTITLE_ENABLED = !args.has("--no-subtitle");
 
 /**
- * 喋らせるか。SPEAK=0 で台本だけ作る。
+ * 喋らせるか。--no-speak で台本だけ作る。
  *
  * 同じお題を何度も回して読み比べるとき、再生の時間がそのまま待ち時間になる。
  * 声も口も要らないなら、作るところで止める。
  */
-const SPEAK = process.env.SPEAK !== "0";
+const SPEAK = !args.has("--no-speak");
 
-const topic = process.argv[2];
-const rounds = Number.parseInt(process.argv[3] ?? "6", 10);
+/** 掛け合いの運び方を、その回だけ注文する。--style "..." で渡す。 */
+const STYLE_NOTE = args.value("--style")?.trim() || undefined;
+
+const topic = args.positional[0];
+const rounds = Number.parseInt(args.positional[1] ?? "6", 10);
 
 if (!topic) {
-  console.error('usage: npm run talk -- "<お題>" [往復数] [先に話す役]');
+  console.error(
+    'usage: npm run talk -- "<お題>" [往復数] [先に話す役]\n' +
+      '       フラグ: --no-speak / --no-subtitle / --style "..."',
+  );
   process.exit(1);
 }
 
@@ -97,7 +111,7 @@ if (speakers.length !== 2) {
   process.exit(1);
 }
 
-const firstSpeaker = process.argv[4];
+const firstSpeaker = args.positional[2];
 if (firstSpeaker && !speakers.includes(firstSpeaker)) {
   console.error(
     `先に話す役が違う: ${firstSpeaker}（${speakers.join(" / ")} のどちらか）`,
@@ -183,7 +197,7 @@ const writer = createWriter({
   speak: SPEAK,
   subtitle,
   withName: SUBTITLE_WITH_NAME,
-  styleNote: process.env.STYLE_NOTE?.trim() || undefined,
+  styleNote: STYLE_NOTE,
 });
 
 const history: Line[] = [];
