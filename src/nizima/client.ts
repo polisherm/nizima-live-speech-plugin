@@ -67,20 +67,39 @@ function saveToken(token: string): void {
   writeFileSync(STATE_FILE, JSON.stringify({ token }, null, 2), "utf-8");
 }
 
+// プラグインの有効・無効が変わったときに届くイベント。
+// Request を送っていなくても通知される（仕様の Method 一覧）。
+const ENABLED_CHANGED = "NotifyEnabledChanged";
+
+/** 有効になるのを待つ上限。人が見ていない場所で走ったときのため。 */
+const ENABLED_TIMEOUT_MS = 5 * 60 * 1000;
+
 /**
- * プラグインが無効なときの案内。
+ * これから待つことの案内。
  *
  * 繋がっても、有効にするまでは何も通らない。
- * 有効にするのは nizima の画面を触る人で、こちらからは頼めない。
+ * 有効にするのは nizima LIVE の画面を触る人で、こちらからは頼めない。
  *
  * ErrorType をそのまま出すと、読んだ人は次の一手を決められない。
  * どこを触ればいいかまで書く。
  */
-function disabledMessage(justRegistered = false): string {
+function waitingMessage(justRegistered = false): string {
   const head = justRegistered
     ? `nizima LIVE に ${PLUGIN_NAME} を登録した。`
     : `${PLUGIN_NAME} が nizima LIVE 側で無効になっている。`;
-  return `${head}\nプラグインマネージャーでトグルを有効にしてから、もう一度実行する。`;
+  return `${head}\nプラグインマネージャーでトグルを有効にすると、そのまま続きが走る。`;
+}
+
+/**
+ * 動かしている途中で無効にされたときの案内。
+ *
+ * ここは待たない。喋っている最中に止められたなら、続きを流しても噛み合わない。
+ */
+function disabledMessage(): string {
+  return (
+    `${PLUGIN_NAME} が nizima LIVE 側で無効になっている。\n` +
+    "プラグインマネージャーでトグルを有効にしてから、もう一度実行する。"
+  );
 }
 
 /** Error の Data が PluginDisabled かどうか。 */
@@ -124,7 +143,10 @@ export class NizimaClient {
         // トークンが無効になっている。登録からやり直す。
       }
       if (established) {
-        if (!established.Enabled) throw new Error(disabledMessage());
+        if (!established.Enabled) {
+          console.error(waitingMessage());
+          await this.waitUntilEnabled();
+        }
         return;
       }
     }
@@ -139,8 +161,40 @@ export class NizimaClient {
     );
     saveToken(response.Token);
     // 登録しただけでは何も通らない。
-    // このまま先へ進めても最初の Method で落ちるので、ここで案内して止める。
-    throw new Error(disabledMessage(true));
+    // 有効にするのは画面を触る人なので、案内を出して、そのまま待つ。
+    console.error(waitingMessage(true));
+    await this.waitUntilEnabled();
+  }
+
+  /**
+   * プラグインが有効になるまで待つ。
+   *
+   * 待たずに落とすと、トグルを入れてからもう一度打ち直すことになる。
+   * NotifyEnabledChanged は Request を送っていなくても届くので、繋いだまま待てる。
+   *
+   * 目の前で待つぶんには Ctrl+C で抜けられる。
+   * 上限を置くのは、人が見ていない場所で走ったときのため。
+   */
+  private waitUntilEnabled(timeoutMs = ENABLED_TIMEOUT_MS): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.eventHandlers.delete(ENABLED_CHANGED);
+        reject(
+          new Error(
+            `${PLUGIN_NAME} が有効にならないまま ${timeoutMs / 1000} 秒が過ぎた。\n` +
+              "すでに有効になっているときは、もう一度実行する。",
+          ),
+        );
+      }, timeoutMs);
+
+      this.onEvent(ENABLED_CHANGED, (data) => {
+        if (typeof data !== "object" || data === null) return;
+        if (!("Enabled" in data) || data.Enabled !== true) return;
+        clearTimeout(timer);
+        this.eventHandlers.delete(ENABLED_CHANGED);
+        resolve();
+      });
+    });
   }
 
   private open(): Promise<void> {
