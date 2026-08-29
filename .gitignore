@@ -21,6 +21,7 @@ takes/*.txt
 
 # IDE の設定。
 .idea/
+.junie/
 
 # Claude Code の作業用。worktree と、環境ごとの設定が入る。
 .claude/
