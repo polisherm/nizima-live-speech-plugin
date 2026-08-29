@@ -12,6 +12,7 @@
     "status": "tsx src/cli/status.ts",
     "talk": "tsx src/cli/talk/talk.ts",
     "cast": "tsx src/cli/cast.ts",
+    "speak": "tsx src/cli/speak.ts",
     "fix-readings": "tsx src/cli/fix-readings.ts",
     "credit": "tsx src/cli/credit.ts",
     "calm-down": "tsx src/cli/calm-down.ts"
