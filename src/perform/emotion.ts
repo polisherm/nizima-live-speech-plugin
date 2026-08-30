@@ -105,7 +105,7 @@ export function extractEmotion(raw: string): {
   const emotion = found && isEmotionName(found) ? found : "neutral";
 
   // 外すのは先頭のタグだけ。途中のタグは残す。
-  // 表情を切り替える位置として splitIntoEmotionSegments が使う。
+  // 表情を切り替える位置として line-parser.ts の parseLine が使う。
   // 読み上げの手前でそちらが消費するため、声には出ない。
   const text = raw
     .replace(/^\s*[[［]\s*[a-zA-Z]+\s*[\]］]\s*/, "")
@@ -113,65 +113,6 @@ export function extractEmotion(raw: string): {
     .trim();
 
   return { emotion, text: text || raw.trim() };
-}
-
-/** 感情の切り替わりで区切った、発言の一区間。 */
-export interface EmotionSegment {
-  emotion: string;
-  text: string;
-}
-
-/**
- * 発言を、感情タグの位置で区切る。
- *
- * 表情を発言の頭で 1 回だけ出すと、長い台詞のあいだ同じ顔が続く。
- * 笑った顔のまま真顔の内容を喋ることになり、見ていて噛み合わない。
- *
- * 発言の途中にもタグを置かせ、そこで表情を切り替える。
- * 音声の合成が終わってから解析するのでは間に合わないため、
- * 何を喋るかを決める側にタグを出させる。改行位置や読みと同じ考え方。
- *
- * 知らないタグ名が来たら、その区間は前の感情のまま続ける。
- * neutral に落とすと、綴りの誤りひとつで顔が急に素へ戻る。
- *
- * initial には発言の頭で出した感情を渡す。
- * 先頭のタグは本文から外してあるため、渡さないと最初の区間が neutral になり、
- * 出したばかりの表情がすぐ素へ戻る。
- */
-export function splitIntoEmotionSegments(
-  raw: string,
-  initial = "neutral",
-): EmotionSegment[] {
-  const pattern = /[[［]\s*([a-zA-Z]+)\s*[\]］]/g;
-  const segments: EmotionSegment[] = [];
-
-  let current = initial;
-  let cursor = 0;
-  let matched: RegExpExecArray | null;
-
-  const push = (text: string, emotion: string) => {
-    const trimmed = text.replace(/\s+/g, " ").trim();
-    if (!trimmed) return;
-    // 同じ感情が続くなら前の区間へまとめる。表情を出し直さない。
-    const previous = segments[segments.length - 1];
-    if (previous && previous.emotion === emotion) {
-      previous.text = `${previous.text} ${trimmed}`.trim();
-      return;
-    }
-    segments.push({ emotion, text: trimmed });
-  };
-
-  while ((matched = pattern.exec(raw)) !== null) {
-    push(raw.slice(cursor, matched.index), current);
-    const name = matched[1].toLowerCase();
-    if (isEmotionName(name)) current = name;
-    cursor = matched.index + matched[0].length;
-  }
-  push(raw.slice(cursor), current);
-
-  return segments.length > 0
-    ? segments
-    : [{ emotion: initial, text: raw.trim() }];
 }
 
 /**
