@@ -17,7 +17,7 @@
 // 調べるとき用の 2 つだけ環境変数のままにしてある。実行の全体に効かせたいため。
 //
 //   SUBTITLE_KEEP=1  出した字幕の画像を消さずに残す
-//   NIZIMA_TRACE=1   落ちたときに、呼び出しの跡も出す
+//   NIZIMA_TRACE=1   落ちたときにスタックトレースを出す
 
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
