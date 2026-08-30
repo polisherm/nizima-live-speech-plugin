@@ -93,7 +93,7 @@ for (const model of models.Models) {
   }
   console.log(`  モーション ${scanned} 件から ${targets.size} 個の値を集めた`);
 
-  // 既定値を引く。moc3 の中にあるため、nizima から取る。
+  // 既定値を引く。moc3 の中にあるため、nizima LIVE から取る。
   const defs = await client.request<GetCubismParametersResponse>(
     "GetCubismParameters",
     { ModelId: model.ModelId },

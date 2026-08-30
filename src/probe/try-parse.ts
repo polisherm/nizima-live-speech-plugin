@@ -4,7 +4,7 @@
 //   npx tsx src/probe/try-parse.ts "<台詞>"    渡した 1 本だけを見る
 //
 // 表情の区間・読み上げの単位・字幕と音声のテキストを並べて出す。
-// nizima も VOICEVOX も要らない。
+// nizima LIVE も VOICEVOX も要らない。
 //
 // 台詞を渡さないときは script/cases.ts を通す。
 // 実際につまずいた形を集めてあるので、割り方を変えたあとの見比べに使える。
