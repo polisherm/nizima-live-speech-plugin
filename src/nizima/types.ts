@@ -1,8 +1,5 @@
 // nizima LIVE Plugin API が返す形。
 //
-// 同じ形を各所で書き写していた。GetModels の受け取り方だけで 7 か所あった。
-// 書き写しは、返る形が変わったときに直し漏れる。ここにまとめる。
-//
 // 実行時に確かめてはいない。届いた JSON をこの形として扱うだけ。
 // 仕様は https://github.com/Live2D/nizimaLIVEPluginAPI の methods.md にある。
 
