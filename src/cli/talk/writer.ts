@@ -6,7 +6,7 @@
 import { query, type SDKUserMessage } from "@anthropic-ai/claude-agent-sdk";
 
 import { MODELS, MODEL_NAMES } from "../../perform/models.js";
-import { extractEmotion } from "../../perform/emotion.js";
+import { extractEmotion } from "../../script/emotions.js";
 import { prepareLine } from "../../perform/perform.js";
 import { buildFixPrompt, acceptFix } from "../../script/verify-reading.js";
 import type { PreparedSpeech } from "../../perform/speak.js";

@@ -23,7 +23,8 @@ import path from "node:path";
 import { config } from "../../config.js";
 import { NizimaClient } from "../../nizima/client.js";
 import { MODELS, MODEL_NAMES } from "../../perform/models.js";
-import { extractEmotion, resetEmotion, returnToIdle } from "../../perform/emotion.js";
+import { resetEmotion, returnToIdle } from "../../perform/emotion.js";
+import { extractEmotion } from "../../script/emotions.js";
 import { performLine } from "../../perform/perform.js";
 import {
   resolveModelIds,

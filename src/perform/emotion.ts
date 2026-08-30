@@ -91,31 +91,6 @@ export function resolveVoiceTuning(
 }
 
 /**
- * 発言の先頭に付いた感情タグを取り出す。
- *
- * 例: 「[laugh] そうなのだ」→ { emotion: "laugh", text: "そうなのだ" }
- * タグが無い、または知らない名前なら neutral として扱う。
- */
-export function extractEmotion(raw: string): {
-  emotion: string;
-  text: string;
-} {
-  const matched = raw.match(/^\s*[[［]\s*([a-zA-Z]+)\s*[\]］]\s*/);
-  const found = matched?.[1].toLowerCase();
-  const emotion = found && isEmotionName(found) ? found : "neutral";
-
-  // 外すのは先頭のタグだけ。途中のタグは残す。
-  // 表情を切り替える位置として line-parser.ts の parseLine が使う。
-  // 読み上げの手前でそちらが消費するため、声には出ない。
-  const text = raw
-    .replace(/^\s*[[［]\s*[a-zA-Z]+\s*[\]］]\s*/, "")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  return { emotion, text: text || raw.trim() };
-}
-
-/**
  * 名前で表情を再生する。持っていない表情なら何もしない。
  *
  * 出ている表情を止めてから出す。

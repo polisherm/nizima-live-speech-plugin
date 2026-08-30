@@ -5,10 +5,10 @@
 import type { NizimaClient } from "../nizima/client.js";
 import { Subtitle, SUBTITLE_MAX_CHARS } from "../stage/subtitle.js";
 import { speakOnModel, prepareSpeech, type PreparedSpeech } from "./speak.js";
+import { extractEmotion } from "../script/emotions.js";
 import {
   applyEmotion,
   applyExpressionOnly,
-  extractEmotion,
   resolveEmotion,
 } from "./emotion.js";
 import type { ModelDefinition } from "./models.js";
