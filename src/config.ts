@@ -69,12 +69,7 @@ export interface Config {
   voicevoxPauseScale: number;
   /** 発言を作る LLM。 */
   talkLlmModel: string;
-  /**
-   * 読みの確認に使う LLM。
-   *
-   * 台本 1 本につき 1 回しか呼ばない。回数が少ないので、
-   * 軽さより見落としの少なさを採る。
-   */
+  /** 読みの確認に使う LLM。 */
   verifyLlmModel: string;
   /**
    * 字幕に話者名を出すか。
