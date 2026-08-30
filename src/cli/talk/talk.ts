@@ -42,15 +42,7 @@ import {
 import { parseArgs } from "../shared.js";
 import { createWriter, type Line, type LineSession } from "./writer.js";
 
-/**
- * 発言を作るモデル。
- *
- * 同じお題で 4 本を作り、どちらで作ったかを伏せて聞き比べた。
- * 上位 2 本に両方が 1 本ずつ入り、差は付かなかった。
- * 会話の面白さで劣らないため、単価の低いほうを採る。
- *
- * 差し替えは config.local.json の talkModel で。
- */
+/** 発言を作るモデル。差し替えは config.local.json の talkModel で。 */
 const MODEL = config.talkModel;
 
 // 発言と発言の間はここで作らない。

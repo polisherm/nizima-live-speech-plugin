@@ -96,6 +96,7 @@ const DEFAULTS: Config = {
   voicevoxUrl: "http://127.0.0.1:50021",
   voicevoxMaxPauseSec: 0.35,
   voicevoxPauseScale: 1,
+  // Opus と聞き比べた。短い会話なら品質に差が出ない印象なので、単価の低いほうにする。
   talkModel: "claude-sonnet-5",
   verifyModel: "claude-sonnet-5",
   subtitleWithName: true,
