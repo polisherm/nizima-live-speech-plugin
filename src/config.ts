@@ -67,7 +67,12 @@ export interface Config {
    * 区切りを入れるのは読みが変わる場所だけにしてあるため、既定のままでよい。
    */
   voicevoxPauseScale: number;
-  /** 発言を作る LLM。 */
+  /**
+   * 発言を作る LLM。
+   *
+   * claude-sonnet-5 のようなモデル ID のほか、opus や sonnet といった
+   * 別名でも書ける。どちらを受け取るかは Agent SDK が決めている。
+   */
   talkLlmModel: string;
   /** 読みの確認に使う LLM。 */
   verifyLlmModel: string;
