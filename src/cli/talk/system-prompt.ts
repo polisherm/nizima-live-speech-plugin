@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 
 import { EMOTION_NAMES } from "../../script/emotions.js";
 
-export interface PersonaOptions {
+export interface SystemPromptOptions {
   /** ペルソナ定義のファイル。models.ts が持つ。 */
   personaPath: string;
   /** 会話の相手。呼びかけ方に使う。 */
@@ -25,7 +25,7 @@ export interface PersonaOptions {
   styleNote?: string;
 }
 
-export function buildSystemPrompt(options: PersonaOptions): string {
+export function buildSystemPrompt(options: SystemPromptOptions): string {
   const persona = readFileSync(options.personaPath, "utf-8");
   return [
     persona,

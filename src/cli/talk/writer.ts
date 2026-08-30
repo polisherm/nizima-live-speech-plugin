@@ -11,7 +11,7 @@ import { prepareLine } from "../../perform/perform.js";
 import { buildFixPrompt, acceptFix } from "../../script/verify-reading.js";
 import type { PreparedSpeech } from "../../perform/speak.js";
 import type { Subtitle } from "../../stage/subtitle.js";
-import { buildSystemPrompt } from "./persona.js";
+import { buildSystemPrompt } from "./system-prompt.js";
 
 /** 会話の 1 発言。履歴として次の問いに渡す。 */
 export interface Line {

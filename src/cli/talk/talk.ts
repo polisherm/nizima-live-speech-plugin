@@ -15,7 +15,7 @@
 // 生成には Claude Agent SDK を使う。Claude Code のログインをそのまま使うため
 // API キーは要らない。料金はサブスクリプションの枠から引かれる。
 //
-// 発言を作るところは writer.ts、指示の組み立ては persona.ts にある。
+// 発言を作るところは writer.ts、指示の組み立ては system-prompt.ts にある。
 import "../../fail-clean.js";
 import { writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
