@@ -261,8 +261,8 @@ npm run check       # 型チェック
 | `voicevoxUrl`         | `http://127.0.0.1:50021`              | VOICEVOX Engine の待ち受け先    |
 | `voicevoxMaxPauseSec` | `0.35`                                | 読点の無音を抑える上限（秒）    |
 | `voicevoxPauseScale`  | `1`                                   | VOICEVOX へ渡す無音の倍率       |
-| `talkModel`           | `claude-sonnet-5`                     | 発言を作るモデル                |
-| `verifyModel`         | `claude-sonnet-5`                     | 読み間違いを見つけるモデル      |
+| `talkLlmModel`        | `claude-sonnet-5`                     | 発言を作る LLM                  |
+| `verifyLlmModel`      | `claude-sonnet-5`                     | 読み間違いを見つける LLM        |
 | `subtitleWithName`    | `true`                                | 字幕に話者名を出すか            |
 
 `nizimaUrl` と `voicevoxUrl` の既定は、どちらもアプリ側が決めたポートに合わせてある。

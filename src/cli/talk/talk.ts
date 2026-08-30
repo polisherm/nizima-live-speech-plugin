@@ -42,8 +42,8 @@ import {
 import { parseArgs } from "../shared.js";
 import { createWriter, type Line, type LineSession } from "./writer.js";
 
-/** 発言を作るモデル。差し替えは config.local.json の talkModel で。 */
-const MODEL = config.talkModel;
+/** 発言を作る LLM。差し替えは config.local.json の talkLlmModel で。 */
+const MODEL = config.talkLlmModel;
 
 // 発言と発言の間はここで作らない。
 //

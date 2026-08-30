@@ -5,7 +5,7 @@
   "voicevoxUrl": "http://127.0.0.1:50021",
   "voicevoxMaxPauseSec": 0.35,
   "voicevoxPauseScale": 1,
-  "talkModel": "claude-sonnet-5",
-  "verifyModel": "claude-sonnet-5",
+  "talkLlmModel": "claude-sonnet-5",
+  "verifyLlmModel": "claude-sonnet-5",
   "subtitleWithName": true
 }

@@ -67,15 +67,15 @@ export interface Config {
    * 区切りを入れるのは読みが変わる場所だけにしてあるため、既定のままでよい。
    */
   voicevoxPauseScale: number;
-  /** 発言を作るモデル。 */
-  talkModel: string;
+  /** 発言を作る LLM。 */
+  talkLlmModel: string;
   /**
-   * 読みの確認に使うモデル。
+   * 読みの確認に使う LLM。
    *
    * 台本 1 本につき 1 回しか呼ばない。回数が少ないので、
    * 軽さより見落としの少なさを採る。
    */
-  verifyModel: string;
+  verifyLlmModel: string;
   /**
    * 字幕に話者名を出すか。
    *
@@ -97,8 +97,8 @@ const DEFAULTS: Config = {
   voicevoxMaxPauseSec: 0.35,
   voicevoxPauseScale: 1,
   // Opus と聞き比べた。短い会話なら品質に差が出ない印象なので、単価の低いほうにする。
-  talkModel: "claude-sonnet-5",
-  verifyModel: "claude-sonnet-5",
+  talkLlmModel: "claude-sonnet-5",
+  verifyLlmModel: "claude-sonnet-5",
   subtitleWithName: true,
 };
 

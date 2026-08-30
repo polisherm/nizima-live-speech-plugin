@@ -14,8 +14,8 @@ import { audioQueryKana } from "../voice/voicevox.js";
 import { finishReading } from "./format-speech.js";
 import { parseLine, toReading } from "./line-parser.js";
 
-/** 読みの確認に使うモデル。差し替えは config.local.json の verifyModel で。 */
-const MODEL = config.verifyModel;
+/** 読みの確認に使う LLM。差し替えは config.local.json の verifyLlmModel で。 */
+const MODEL = config.verifyLlmModel;
 
 /**
  * 読みからアクセントの記号を落とす。
