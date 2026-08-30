@@ -64,7 +64,7 @@ const SUBTITLE_ENABLED = !args.has("--no-subtitle");
  * 同じお題を何度も回して読み比べるとき、再生の時間がそのまま待ち時間になる。
  * 声も口も要らないなら、作るところで止める。
  */
-const SPEAK = !args.has("--no-speak");
+const SPEAK_ENABLED = !args.has("--no-speak");
 
 /** 掛け合いの運び方を、その回だけ注文する。--style "..." で渡す。 */
 const STYLE_NOTE = args.value("--style")?.trim() || undefined;
@@ -125,7 +125,7 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
-const subtitle = SUBTITLE_ENABLED && SPEAK ? new Subtitle(client) : null;
+const subtitle = SUBTITLE_ENABLED && SPEAK_ENABLED ? new Subtitle(client) : null;
 
 // 両方を正面に向け続ける。
 // 素の立ち絵が左向きなので、放っておくと 2 体とも画面の外を見た状態になる。
@@ -174,7 +174,7 @@ console.log(`モデル: ${MODEL}\n`);
 // 音を鳴らすプロセス、字幕の描画、話者の読み込みは最初の 1 回だけ時間がかかる。
 // 台詞の途中で払うと、そこで会話が止まって見える。
 // 喋らせないなら、この準備も要らない。
-if (SPEAK) {
+if (SPEAK_ENABLED) {
   const warmUpStartedAt = Date.now();
   await warmUp(
     Object.values(MODELS).map((role) => role.speakerId),
@@ -186,7 +186,7 @@ if (SPEAK) {
 const writer = createWriter({
   topic,
   model: MODEL,
-  speak: SPEAK,
+  speak: SPEAK_ENABLED,
   subtitle,
   withName: SUBTITLE_WITH_NAME,
   styleNote: STYLE_NOTE,
@@ -264,7 +264,7 @@ for (let turn = 0; turn < total; turn++) {
 
   // 台本だけ欲しいときは、ここから先を飛ばす。
   // 何度も回して読み比べるとき、再生の時間がそのまま待ち時間になる。
-  if (!SPEAK) continue;
+  if (!SPEAK_ENABLED) continue;
 
   const spoken = await performLine({
     client,
